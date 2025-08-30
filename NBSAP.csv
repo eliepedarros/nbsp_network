@@ -1,0 +1,890 @@
+﻿Country;Objective;Network
+Algeria;12;Government:Biodiversity_Institution:Private_sector:Academic
+Algeria;4;Government
+Algeria;6;Government
+Algeria;9;Government:Academic
+Algeria;7;Government:Academic:Biodiversity_Institution:Civil:Protected_areas:Private_sector
+Algeria;8;Government:Academic:Media:NGO:Civil
+Algeria;17;Government:Biodiversity_Institution:Academic
+Algeria;16;Government:Biodiversity_Institution:Academic:Local_authorities
+Algeria;13;Government:Biodiversity_Institution:Academic:NGO
+Algeria;18;Government:Civil:Local_authorities
+Algeria;11;Government:Education:Academic:Media:Protected_areas:Local_authorities:NGO:Civil
+Algeria;21;Government:Local_authorities:Civil
+Algeria;10;Government:Local_authorities:NGO:Academic:Civil:Private_sector
+Algeria;14;Government:Local_authorities:Protected_areas:Private_sector
+Algeria;20;Government:NGO:Private_sector:International
+Algeria;5;Government:Private_sector
+Algeria;1;Government:Private_sector:Academic
+Algeria;15;Government:Private_sector:Academic
+Algeria;2;Government:Private_sector:Academic:Protected_areas:Civil
+Algeria;3;Government:Private_sector:Academic:Protected_areas:Civil:Biodiversity_Institution
+Algeria;19;Government:Protected_areas:Civil:Private_sector:Education:Academic
+Angola;4;Government
+Angola;5;Government
+Angola;10;Government
+Angola;11;Government
+Angola;3;Government:Academic:Local_authorities
+Angola;6;Government:Academic:Local_authorities
+Angola;9;Government:Biodiversity_Institution:Local_authorities
+Angola;8;Government:Local_authorities
+Angola;2;Government:Local_authorities:Protected_areas:Private_sector
+Angola;7;Government:Private_sector
+Angola;1;Government:Private_sector:Local_authorities:IPLC:Biodiversity_Institution
+Angola;12;Government:Protected_areas
+Benin;1;Government:Civil:NGO:Local_authorities:Private_sector
+Benin;20;Government:Civil:NGO:Private_sector:Local_authorities
+Benin;4;Government:Local_authorities:Private_sector
+Benin;5;Government:Local_authorities:Private_sector
+Benin;6;Government:Local_authorities:Private_sector:Protected_areas:Academic
+Benin;7;Government:Local_authorities:Private_sector:Protected_areas:NGO:Civil:Academic
+Benin;19;Government:NGO
+Benin;13;Government:NGO:Academic:Private_sector
+Benin;14;Government:NGO:Academic:Private_sector
+Benin;9;Government:NGO:Academic:Private_sector:Academic
+Benin;8;Government:NGO:Local_authorities:Private_sector
+Benin;11;Government:NGO:Local_authorities:Private_sector:Academic
+Benin;12;Government:NGO:Local_authorities:Private_sector:Academic
+Benin;18;Government:NGO:Private_sector
+Benin;15;Government:NGO:Private_sector:Academic
+Benin;10;Government:NGO:Private_sector:Local_authorities
+Benin;2;Government:Private_sector:NGO
+Benin;16;Government:Private_Sector:NGO:Academic
+Benin;17;Government:Private_Sector:NGO:Academic:Civil
+Benin;3;Government:Private_sector:NGO:Local_authorities
+Botswana;17;Government
+Botswana;20;Government
+Botswana;12;Government:Academic:Civil
+Botswana;6;Government:Academic:Civil:IPLC:Local_authorities
+Botswana;13;Government:Academic:Civil:Local_authorities
+Botswana;18;Government:Academic:IPLC
+Botswana;7;Government:Academic:IPLC:Local_authorities:Civil
+Botswana;1;Government:Academic:Local_authorities:NGO:IPLC:Consultant
+Botswana;8;Government:Academic:Protected_areas:Civil
+Botswana;19;Government:Civil:IPLC:NGO:Academic
+Botswana;10;Government:Civil:NGO:Academic
+Botswana;5;Government:Civil:Protected_areas:Academic:NGO:IPLC:Private_sector
+Botswana;15;Government:IPLC:Civil:Local_authorities:NGO:Academic
+Botswana;14;Government:IPLC:Local_authorities:NGO:Academic
+Botswana;9;Government:Local_authorities
+Botswana;4;Government:Local_authorities:Civil:Academic:Private_sector
+Botswana;2;Government:NGO:Academic:Local_authorities:Civil
+Botswana;11;Government:NGO:Protected_areas:Academic:Civil
+Botswana;3;Government:Private_sector
+Botswana;16;Government:Private_sector:Civil:Academic:IPLC
+Burkina Faso;1;Government:IPLC:Civil:Local_authorities:Private_sector:NGO:International
+Burundi;21;Government:Academic:International
+Burundi;22;Government:Academic:International:Biodiversity_Institution
+Burundi;16;Government:Biodiversity_Institution:NGO:International
+Burundi;6;Government:Biodiversity_Institution:Private_sector
+Burundi;7;Government:International
+Burundi;10;Government:International
+Burundi;15;Government:International
+Burundi;20;Government:International
+Burundi;11;Government:International:Biodiversity_Institution
+Burundi;12;Government:International:Biodiversity_Institution
+Burundi;13;Government:International:Biodiversity_Institution:IPLC
+Burundi;19;Government:IPLC
+Burundi;5;Government:IPLC:Biodiversity_Institution
+Burundi;9;Government:IPLC:International
+Burundi;2;Government:IPLC:NGO:Protected_areas:International
+Burundi;14;Government:IPLC:Private_sector:International
+Burundi;1;Government
+Burundi;3;Government
+Burundi;4;Government
+Burundi;8;Government
+Burundi;17;Government
+Burundi;18;Government
+Cabo Verde;14;Government:Academic:NGO:Private_sector
+Cabo Verde;15;Government:Local_authorities:NGO:International
+Cabo Verde;1;Government:Local_authorities:NGO:Private_sector
+Cabo Verde;4;Government:Local_authorities:NGO:Private_sector:Academic:Protected_areas
+Cabo Verde;2;Government:Local_authorities:NGO:Private_sector:International
+Cabo Verde;3;Government:Local_authorities:NGO:Private_sector:International
+Cabo Verde;12;Government:NGO:International:IPLC
+Cabo Verde;11;Government:NGO:IPLC:Academic
+Cabo Verde;13;Government:NGO:IPLC:Academic:Protected_areas:Private_sector
+Cabo Verde;5;Government:NGO:Private_sector:IPLC:International:Civil
+Cabo Verde;6;Government:Protected_areas:NGO:Academic:International:IPLC
+Cabo Verde;7;Government:Protected_areas:NGO:Academic:International:IPLC
+Cabo Verde;8;Government:Academic
+Cabo Verde;9;Government:Academic:Private_sector:NGO:IPLC:Protected_areas:International
+Cabo Verde;10;Government:Protected_areas:NGO:IPLC:Private_sector:Academic
+Cameroon;6;Government:Academic
+Cameroon;8;Government:Academic
+Cameroon;12;Government:Academic
+Cameroon;13;Government:Academic
+Cameroon;14;Government:Academic
+Cameroon;15;Government:Academic
+Cameroon;16;Government:Academic
+Cameroon;20;Government:Academic:International:Private_sector:NGO
+Cameroon;18;Government:Academic:Local_authorities
+Cameroon;1;Government:Academic:Local_authorities:NGO
+Cameroon;2;Government:Academic:NGO
+Cameroon;11;Government:IPLC:Academic:International
+Cameroon;7;Government:Local_authorities
+Cameroon;3;Government:Local_authorities:NGO:Private_sector
+Cameroon;19;Government:NGO
+Cameroon;9;Government:NGO:Academic
+Cameroon;10;Government:NGO:Academic
+Cameroon;17;Government:Private_sector:Civil
+Cameroon;4;Government
+Cameroon;5;Government
+Centrafrican Republic;5;Government:Academic:Civil:NGO
+Centrafrican Republic;7;Government:Academic:NGO:Local_authorities:Civil:IPLC
+Centrafrican Republic;4;Government:Academic:NGO:Private_sector
+Centrafrican Republic;6;Government:Academic:NGO:Private_sector
+Centrafrican Republic;2;Government:Civil:IPLC:Local_authorities:NGO
+Centrafrican Republic;1;Government:Civil:Local_authorities:NGO:Academic:Private_sector
+Centrafrican Republic;3;Government:IPLC:NGO:Private_sector:Academic
+Chad;1;Government:International:Local_authorities:Civil:NGO
+Chad;2;Government:International:Local_authorities:Civil:NGO
+Chad;3;Government:International:Local_authorities:Civil:NGO
+Comoros;19;Government:Academic
+Comoros;17;Government:Academic:Local_authorities:Civil:Private_sector
+Comoros;2;Government:Academic:Local_authorities:Private_sector
+Comoros;11;Government:Academic:Local_authorities:Private_sector:Civil:IPLC
+Comoros;12;Government:Academic:Local_authorities:Private_sector:Civil:IPLC
+Comoros;8;Government:Academic:NGO:Civil:Local_authorities
+Comoros;13;Government:Academic:NGO:Civil:Local_authorities:Private_sector:IPLC:Media
+Comoros;18;Government:Academic:Private_sector
+Comoros;9;Government:Local_authorities:Academic:NGO:Civil
+Comoros;1;Government:Local_authorities:Civil:Media:NGO:Education:Private_sector:International
+Comoros;5;Government:Local_authorities:International
+Comoros;10;Government:NGO:Civil:IPLC:Private_sector:Local_authorities:Academic
+Comoros;6;Government:NGO:Civil:IPLC:Private_sector:Local_authorities:International:Academic
+Comoros;14;Government:NGO:Local_authorities
+Comoros;3;Government:NGO:Local_authorities:Civil:Media:International
+Comoros;15;Government:NGO:Local_authorities:Private_sector
+Comoros;7;Government:NGO:Private_sector:Local_authorities
+Comoros;4;Government:Private_sector
+Comoros;16;Government:Private_sector:Local_authorities:NGO
+Comoros;20;Government
+Congo;1;Government:Civil
+Congo;5;Government:International
+Congo;2;Government
+Congo;3;Government
+Congo;4;Government
+Congo;6;Government
+Congo;7;Government
+Congo;8;Government
+Congo;9;Government
+Congo;10;Government
+Congo;11;Government
+Congo;12;Government
+Congo;13;Government
+Congo;14;Government
+Congo;15;Government
+Congo;16;Government
+Congo;17;Government
+Congo;18;Government
+Congo;19;Government
+Congo;20;Government
+DRC;8;Government:Academic
+DRC;2;Government:Academic:Local_authorities:NGO:International:Private_sector
+DRC;9;Government:Academic:NGO:Biodiversity_Institution:IPLC
+DRC;10;Government:Biodiversity_Institution
+DRC;5;Government:Biodiversity_Institution:NGO:International
+DRC;6;Government:IPLC:NGO:International
+DRC;7;Government:NGO
+DRC;1;Government:NGO:Academic:International
+DRC;4;Government:NGO:Internatinal:Biodiversity_Institution
+DRC;3;Government
+Egypt;1;Government
+Egypt;6;Government
+Egypt;17;Government
+Egypt;18;Government
+Egypt;19;Government
+Egypt;2;Government:Academic
+Egypt;3;Government:Academic
+Egypt;4;Government:Academic
+Egypt;5;Government:Academic
+Egypt;7;Government:Academic
+Egypt;8;Government:Academic
+Egypt;9;Government:Academic
+Egypt;10;Government:Academic
+Egypt;11;Government:Academic
+Egypt;12;Government:Academic
+Egypt;13;Government:Academic
+Egypt;14;Government:Academic
+Egypt;15;Government:Academic
+Egypt;16;Government:Academic
+Equatorial Guinea;20;Government:Academic:NGO:Civil
+Equatorial Guinea;2;Government:Academic:NGO:Civil:Biodiversity_Institution
+Equatorial Guinea;21;Government:Academic:NGO:Civil:Local_authorities
+Equatorial Guinea;3;Government:Academic:NGO:Private_Sector:Civil:Biodiversity_Institution
+Equatorial Guinea;4;Government:Academic:NGO:Private_sector:Civil:Biodiversity_Institution
+Equatorial Guinea;7;Government:Academic:NGO:Private_sector:Civil:Biodiversity_Institution
+Equatorial Guinea;19;Government:Academic:Private_sector:Civil:NGO
+Equatorial Guinea;10;Government:Biodiversity_Institution:NGO:Civil
+Equatorial Guinea;1;Government:Civil:Education:NGO:Academic:Biodiversity_Institution
+Equatorial Guinea;17;Government:Civil:NGO:Academic:Biodiversity_Institution
+Equatorial Guinea;11;Government:Civil:NGO:Private_sector:Academic:Biodiversity_Institution
+Equatorial Guinea;18;Government:NGO:Academic:Private_sector:Biodiversity_Institution:Civil
+Equatorial Guinea;9;Government:NGO:Biodiversity_Institution:Civil
+Equatorial Guinea;14;Government:NGO:Biodiversity_Institution:Civil
+Equatorial Guinea;13;Government:NGO:Civil:Biodiversity_Institution:Local_authorities
+Equatorial Guinea;8;Government:NGO:Civil:Private_sector:Biodiversity_Institution:Local_authorities
+Equatorial Guinea;5;Government:NGO:Local_authorities:Private_sector:Civil:Biodiversity_Institution
+Equatorial Guinea;16;Government:Private_sector
+Equatorial Guinea;12;Government:Private_sector:Civil:NGO:Private_sector:Academic
+Equatorial Guinea;15;Government:Private_sector:Civil:NGO:Private_sector:Academic
+Equatorial Guinea;6;Government:Private_sector:NGO:Civil:Biodiversity_Institution
+Eritrea;8;Government:Academic
+Eritrea;19;Government:Academic
+Eritrea;16;Government:Academic:International
+Eritrea;15;Government:Academic:International:IPLC
+Eritrea;17;Government:Academic:NGO:Civil
+Eritrea;1;Government:Civil:Academic:IPLC
+Eritrea;3;Government:IPLC
+Eritrea;4;Government:IPLC
+Eritrea;5;Government:IPLC
+Eritrea;6;Government:IPLC
+Eritrea;7;Government:IPLC
+Eritrea;9;Government:IPLC
+Eritrea;10;Government:IPLC
+Eritrea;11;Government:IPLC
+Eritrea;18;Government:IPLC
+Eritrea;12;Government:IPLC:Local_authorities:Academic
+Eritrea;13;Government:Local_authorities:Academic:IPLC
+Eritrea;2;Government
+Eritrea;14;Government
+Eritrea;20;Government
+Eswatini;19;Government:Academic
+Eswatini;2;Government:Academic:IPLC:Private_sector
+Eswatini;5;Government:Academic:Media
+Eswatini;1;Government:Academic:Media:NGO:IPLC:Local_authorities
+Eswatini;9;Government:Academic:NGO:Civil:Local_authorities:Media:IPLC
+Eswatini;12;Government:Academic:NGO:Civil:Private_sector
+Eswatini;11;Government:Academic:NGO:Private_sector:Local_authorities
+Eswatini;3;Government:Academic:Private_sector
+Eswatini;13;Government:Academic:Private:Civil
+Eswatini;14;Government:Civil:Academic:Media:Private_sector
+Eswatini;16;Government:IPLC:Academic
+Eswatini;18;Government:IPLC:Academic
+Eswatini;15;Government:Local_authorities:Private_sector:Civil:Academic
+Eswatini;4;Government:Private_sector
+Eswatini;10;Government:Private_sector:Academic:NGO
+Eswatini;7;Government:Private_sector:Academic:Private_sector
+Eswatini;8;Government:Private_sector:Local_authorities
+Eswatini;6;Government
+Eswatini;17;Government
+Eswatini;20;Government
+Ethiopia;16;Government:Academic:Local_authorities:NGO:Biodiversity_Institution
+Ethiopia;8;Government:Academic:Protected_areas:Biodiversity_Institution
+Ethiopia;15;Government:Academic:Protected_areas:Private_sector:Biodiversity_Institution:IPLC:NGO
+Ethiopia;3;Government:Biodiversity_Institution
+Ethiopia;11;Government:Biodiversity_Institution:Academic:Media:Local_authorities:Private_sector
+Ethiopia;14;Government:Biodiversity_Institution:Local_authorities:Academic
+Ethiopia;1;Government:Biodiversity_Institution:NGO:Local_authorities
+Ethiopia;17;Government:Biodiversity_Institution:NGO:Local_authorities
+Ethiopia;13;Government:Biodiversity_Institution:Private_sector:NGO:Academic:Civil
+Ethiopia;6;Government:Local_authorities:Biodiversity_Institution
+Ethiopia;9;Government:Local_authorities:Biodiversity_Institution:NGO
+Ethiopia;2;Government:Local_authorities:Biodiversity_Institution:Protected_areas
+Ethiopia;18;Government:Local_authorities:Biodiversity_Institution:Protected_areas
+Ethiopia;4;Government:Local_authorities:NGO:Academic:Biodiversity_Institution
+Ethiopia;12;Government:Local_authorities:NGO:Civil:Biodiversity_Institution
+Ethiopia;5;Government:Local_authorities:NGO:Private_sector:Biodiversity_Institution
+Ethiopia;10;Government:NGO:Biodiversity_Institution
+Ethiopia;7;Government:NGO:Local_authorities:Protected_areas:Biodiversity_Institution
+Gabon;6;Government:Academic:International:NGO:Protected_areas
+Gabon;5;Government:International:Academic:NGO:IPLC
+Gabon;4;Government:International:NGO
+Gabon;3;Government:International:Private_sector:NGO
+Gabon;1;Government:NGO:International:Academic:Private_sector
+Gabon;2;Government:NGO:International:Private_sector:Academic
+Gambia;13;Government:Academic
+Gambia;2;Government:Academic:Civil:Private_sector:Media
+Gambia;3;Government:Biodiversity_Institution:Civil:Private_sector:Local_authorities
+Gambia;11;Government:Biodiversity_Institution:IPLC:Civil
+Gambia;1;Government:Biodiversity_Institution:Private_sector:Academic
+Gambia;8;Government:Biodiversity_Institution:Private_sector:Local_authorities
+Gambia;4;Government:Civil:Biodiversity_Institution:International
+Gambia;16;Government:Civil:Local_authorities:IPLC
+Gambia;10;Government:IPLC
+Gambia;15;Government:IPLC
+Gambia;20;Government:IPLC
+Gambia;7;Government:IPLC:Biodiversity_Institution
+Gambia;6;Government:IPLC:Civil:Biodiversity_Institution:Private_sector
+Gambia;14;Government:IPLC:Civil:Biodiversity_Institution:Private_sector
+Gambia;17;Government:Local_authorities:Academic
+Gambia;18;Government:Local_authorities:Civil
+Gambia;12;Government:Local_authorities:IPLC
+Gambia;19;Government:Local_authorities:Media:Civil:Academic
+Gambia;5;Government
+Gambia;9;Government
+Ghana;2;Government:Academic:Biodiversity_Institution
+Ghana;8;Government:Academic:Biodiversity_Institution
+Ghana;11;Government:Academic:Biodiversity_Institution:Civil:IPLC:Media:Private_sector
+Ghana;7;Government:Academic:IPLC:Local_authorities
+Ghana;3;Government:Academic:NGO
+Ghana;19;Government:Academic:NGO:Civil
+Ghana;12;Government:Academic:NGO:Civil:IPLC:Local_authorities
+Ghana;6;Government:Academic:Private_sector
+Ghana;13;Government:Academic:Private_sector:IPLC:Local_authorities
+Ghana;9;Government:Academic:Civil:Biodiversity_Institution
+Ghana;10;Government:Biodiversity_Institution:Academic:Civil:IPLC
+Ghana;16;Government:Civil:Biodiversity_Institution
+Ghana;14;Government:Civil:Local_authorities:NGO:Academic:Private_sector
+Ghana;15;Government:Civil:NGO:Academic
+Ghana;5;Government:Civil:Private_sector:Biodiversity_Institution
+Ghana;18;Government:IPLC:NGO:Academic
+Ghana;1;Government:Media
+Ghana;4;Government:Media:Civil:Biodiversity_Institution:Private_sector:NGO:Academic:Local_authorities:IPLC
+Ghana;20;Government:NGO:Biodiversity_Institution
+Ghana;17;Government
+Guinea;2;Government:International:Local_authorities
+Guinea;3;Government:NGO:International
+Guinea;6;Government:NGO:International
+Guinea;7;Government:NGO:International
+Guinea;9;Government:NGO:International
+Guinea;11;Government:NGO:International
+Guinea;13;Government:NGO:International
+Guinea;14;Government:NGO:International
+Guinea;15;Government:NGO:International
+Guinea;16;Government:NGO:International
+Guinea;17;Government:NGO:International
+Guinea;18;Government:NGO:International
+Guinea;19;Government:NGO:International
+Guinea;20;Government:NGO:International
+Guinea;12;Government:NGO:International:Academic
+Guinea;1;Government:NGO:International:IPLC
+Guinea;4;Government:NGO:International:Private_sector
+Guinea;5;Government:NGO:IPLC:International
+Guinea Bissau;6;Government:Academic:Biodiversity_Institution:International
+Guinea Bissau;7;Government:Biodiversity_Institution
+Guinea Bissau;8;Government:Biodiversity_Institution
+Guinea Bissau;9;Government:Biodiversity_Institution
+Guinea Bissau;12;Government:Biodiversity_Institution
+Guinea Bissau;14;Government:Biodiversity_Institution
+Guinea Bissau;16;Government:Biodiversity_Institution
+Guinea Bissau;17;Government:Biodiversity_Institution
+Guinea Bissau;18;Government:Biodiversity_Institution
+Guinea Bissau;20;Government:Biodiversity_Institution
+Guinea Bissau;13;Government:Biodiversity_Institution:Academic
+Guinea Bissau;15;Government:Biodiversity_Institution:Academic
+Guinea Bissau;19;Government:Biodiversity_Institution:Academic
+Guinea Bissau;3;Government:Biodiversity_Institution:International
+Guinea Bissau;4;Government:Biodiversity_Institution:International
+Guinea Bissau;11;Government:Biodiversity_Institution:International
+Guinea Bissau;5;Government:Biodiversity_Institution:International:Academic
+Guinea Bissau;10;Government:Biodiversity_Institution:International:Academic
+Guinea Bissau;2;Government:NGO:Academic:Biodiversity_Institution
+Guinea Bissau;1;Government:NGO:Media:International
+Ivory Coast;13;Government:Academic
+Ivory Coast;17;Government:Academic
+Ivory Coast;19;Government:Academic
+Ivory Coast;7;Government:Academic
+Ivory Coast;4;Government:Academic:International:NGO:Protected_areas
+Ivory Coast;5;Government:Academic:International:Protected_areas
+Ivory Coast;2;Government:Academic:Local_authorities
+Ivory Coast;3;Government:Academic:Local_authorities
+Ivory Coast;9;Government:Academic:Local_authorities:Protected_areas:Private_sector
+Ivory Coast;14;Government:Academic:NGO:Local_authorities
+Ivory Coast;11;Government:Academic:Private_sector
+Ivory Coast;12;Government:Academic:Private_sector
+Ivory Coast;6;Government:Academic:Protected_areas
+Ivory Coast;8;Government:Academic:Protected_areas
+Ivory Coast;20;Government:Academic:Protected_areas
+Ivory Coast;10;Government:Academic:Protected_areas:Private_sector
+Ivory Coast;1;Government:Biodiversity_Institution:Academic:Protected_areas:Local_authorities
+Ivory Coast;15;Government:Local_authorities:Academic:Civil
+Ivory Coast;16;Government:NGO:Protected_areas:Academic
+Ivory Coast;18;Government:Protected_areas:Local_authorities
+Kenya;11;Government:Academic
+Kenya;13;Government:Academic
+Kenya;15;Government:Academic:IPLC
+Kenya;8;Government:Academic:IPLC:Protected_areas
+Kenya;20;Government:Academic:NGO:Civil
+Kenya;17;Government:Academic:NGO:IPLC
+Kenya;9;Government:Academic:NGO:IPLC:Private_sector
+Kenya;14;Government:Academic:NGO:IPLC:Private_sector
+Kenya;21;Government:Academic:NGO:Private_sector
+Kenya;7;Government:Academic:Private_sector:Protected_areas
+Kenya;16;Government:Academic:Protected_areas
+Kenya;19;Government:Academic:Protected_areas
+Kenya;12;Government:NGO:IPLC
+Kenya;18;Government:Private_sector
+Kenya;10;Government:Private_sector:Academic:NGO
+Kenya;4;Government:Private_sector:NGO:IPLC
+Kenya;5;Government:Protected_areas:NGO:Academic
+Kenya;6;Government:Protected_areas:NGO:Academic:IPLC
+Kenya;1;Government:Protected_areas:NGO:IPLC
+Kenya;2;Government:Protected_areas:NGO:IPLC
+Kenya;3;Government:Protected_areas:NGO:IPLC
+Lesotho;4;Government:Biodiversity_Institution:Private_sector:NGO:IPLC:Academic:Civil
+Lesotho;6;Government:International:IPLC:Academic
+Lesotho;2;Government:IPLC:Private_sector:NGO
+Lesotho;3;Government:Local_authorities:IPLC
+Lesotho;1;Government:Protected_areas:International:Private_sector:Academic:Local_authorities:Civil
+Lesotho;5;Government
+Liberia;19;Government:Academic
+Liberia;11;Government:Academic:Biodiversity_Institution
+Liberia;12;Government:Academic:Biodiversity_Institution
+Liberia;13;Government:Academic:Biodiversity_Institution
+Liberia;14;Government:Academic:Biodiversity_Institution
+Liberia;15;Government:Academic:Biodiversity_Institution:International
+Liberia;20;Government:Academic:International:Biodiversity_Institution
+Liberia;3;Government:Biodiversity_Institution
+Liberia;4;Government:Biodiversity_Institution
+Liberia;5;Government:Biodiversity_Institution
+Liberia;6;Government:Biodiversity_Institution
+Liberia;7;Government:Biodiversity_Institution
+Liberia;8;Government:Biodiversity_Institution
+Liberia;17;Government:Biodiversity_Institution
+Liberia;18;Government:Biodiversity_Institution:Academic:IPLC
+Liberia;1;Government:Biodiversity_Institution:Academic:Private_sector
+Liberia;9;Government:Biodiversity_Institution:International
+Liberia;10;Government:Biodiversity_Institution:International:Academic
+Liberia;2;Government:Biodiversity_Institution:International:Academic:Private_sector
+Liberia;16;Government:Private_sector:Academic:IPLC:Biodiversity_Institution
+Madagascar;10;Government:Academic:NGO:IPLC
+Madagascar;4;Government:Civil:International:Academic
+Madagascar;13;Government:International
+Madagascar;9;Government:International:NGO
+Madagascar;12;Government:International:NGO:Academic
+Madagascar;19;Government:International:NGO:Academic
+Madagascar;15;Government:International:NGO:Academic:Civil
+Madagascar;5;Government:International:NGO:Academic:IPLC:Private_sector:Civil
+Madagascar;18;Government:International:NGO:Civil
+Madagascar;20;Government:International:NGO:Private_sector:Protected_areas:International
+Madagascar;2;Government:Local_authorities
+Madagascar;1;Government:Local_authorities:NGO:Academic:International:Private_sector
+Madagascar;8;Government:Local_authorities:Private_sector:NGO:Academic:IPLC
+Madagascar;6;Government:NGO:Academic:Local_authorities:Civil:Private_sector
+Madagascar;17;Government:NGO:Civil:International
+Madagascar;11;Government:NGO:International
+Madagascar;16;Government:NGO:International
+Madagascar;14;Government:NGO:International:Academic:Civil
+Madagascar;7;Government:NGO:Private_sector:International:Local_authorities:Academic:IPLC
+Madagascar;3;Government:Private_sector:Local_authorities
+Malawi;9;Government:Academic:Civil:IPLC
+Malawi;10;Government:Academic:Civil:Local_authorities
+Malawi;1;Government:Academic:Civil:NGO
+Malawi;15;Government:Academic:Civil:NGO:IPLC
+Malawi;2;Government:Academic:NGO:Civil:IPLC:Local_authorities
+Malawi;6;Government:Academic:NGO:Civil:IPLC:Local_authorities
+Malawi;13;Government:Academic:NGO:Civil:IPLC:Local_authorities
+Malawi;5;Government:Academic:Private_sector
+Malawi;7;Government:Academic:Private_sector:NGO:Civil:IPLC
+Malawi;16;Government:NGO:Civil:Academic:IPLC
+Malawi;12;Government:Private_sector:Civil:IPLC:Academic
+Malawi;11;Government:Private_sector:Civil:NGO:Academic
+Malawi;8;Government:Private_sector:NGO:Civil
+Malawi;3;Government:Private_sector:NGO:Academic
+Malawi;4;Government:Protected_areas:Academic:IPLC:Private_sector:NGO
+Malawi;14;Government
+Mali;3;Government:Academic
+Mali;15;Government:Academic
+Mali;18;Government:Academic
+Mali;9;Government:Academic:International:NGO:IPLC
+Mali;6;Government:Academic:NGO
+Mali;12;Government:Academic:NGO
+Mali;14;Government:Academic:NGO:International
+Mali;11;Government:Academic:NGO:IPLC:International
+Mali;13;Government:Academic:NGO:IPLC:International
+Mali;17;Government:Academic:NGO:IPLC:International
+Mali;19;Government:Academic:NGO:IPLC:International
+Mali;1;Government:Academic:NGO:IPLC:International:Education
+Mali;7;Government:Academic:NGO:IPLC:Local_authorities:International
+Mali;5;Government:Academic:NGO:Private_sector:IPLC:International
+Mali;10;Government:International:Local_authorities:NGO:Private_sector
+Mali;4;Government:NGO:IPLC:Academic
+Mali;2;Government:NGO:IPLC:International:Academic
+Mali;8;Government:Private_sector:NGO:Academic
+Mali;16;Government
+Morocco;2;Government:Academic
+Morocco;10;Government:Academic
+Morocco;12;Government:Academic
+Morocco;13;Government:Academic
+Morocco;21;Government:Academic
+Morocco;23;Government:Academic
+Morocco;1;Government:Academic
+Morocco;24;Government:Academic:Local_authorities:NGO:Medias:Private_sector
+Morocco;7;Government:Academic:Local_authorities:NGO:International
+Morocco;9;Government:Academic:NGO
+Morocco;19;Government:Academic:NGO
+Morocco;20;Government:Academic:NGO
+Morocco;22;Government:Academic:NGO
+Morocco;3;Government:Local_authorities
+Morocco;4;Government:Local_authorities:NGO:Academic:Private_sector
+Morocco;8;Government:NGO
+Morocco;11;Government:NGO
+Morocco;16;Government:NGO:Academic:Local_authorities:Civil:Private_sector
+Morocco;25;Government:NGO:Academic:Local_authorities:Civil:Private_sector
+Morocco;26;Government:NGO:Local_authorities:Academic:Media
+Morocco;14;Government:NGO:Local_authorities:Private_sector
+Morocco;5;Government
+Morocco;6;Government
+Morocco;15;Government
+Morocco;17;Government
+Morocco;18;Government
+Mauritius;13;Government:Academic
+Mauritius;16;Government:Academic
+Mauritius;1;Government:Academic:NGO
+Mauritius;10;Government:Academic:NGO
+Mauritius;9;Government:International:Private_sector:Protected_areas
+Mauritius;6;Government:NGO
+Mauritius;7;Government:NGO
+Mauritius;14;Government:NGO:Protected_areas
+Mauritius;2;Government:Private_sector
+Mauritius;4;Government:Private_sector
+Mauritius;11;Government:Private_sector:Protected_areas:NGO
+Mauritius;5;Government:Protected_areas
+Mauritius;12;Government:Protected_areas
+Mauritius;19;Government:Protected_areas
+Mauritius;15;Government:Protected_areas:Academic
+Mauritius;8;Government:Protected_areas:Private_sector
+Mauritius;3;Government
+Mauritius;17;Government
+Mauritius;20;Government
+Mauritania;12;Government:Academic:IPLC:NGO
+Mauritania;10;Government:NGO:Academic:Civil
+Mauritania;1;Government:NGO:Private_sector:IPLC:International
+Mauritania;3;Government:Private_sector:NGO:International
+Mauritania;5;Government:Private_sector:NGO:International
+Mauritania;4;Government
+Mauritania;2;Government
+Mauritania;13;Government
+Mauritania;14;Government
+Mauritania;15;Government
+Mauritania;16;Government
+Mauritania;17;Government
+Mauritania;18;Government
+Mauritania;19;Government
+Mauritania;20;Government
+Mozambique;18;Government:Academic
+Mozambique;4;Government:Academic:Biodiversity_Institution
+Mozambique;14;Government:Academic:Biodiversity_Institution
+Mozambique;11;Government:Academic:Biodiversity_Institution:International
+Mozambique;15;Government:Academic:Biodiversity_Institution:IPLC:NGO:Private_sector:Local_authorities
+Mozambique;13;Government:Academic:IPLC:NGO:Private_sector
+Mozambique;3;Government:Academic:Local_authorities:IPLC:Civil:Private_sector:Biodiversity_Institution
+Mozambique;5;Government:Academic:NGO
+Mozambique;16;Government:Academic:NGO
+Mozambique;2;Government:Academic:NGO:Private_sector:Biodiversity_Institution
+Mozambique;19;Government:Academic:NGO:Private_sector:IPLC
+Mozambique;10;Government:Academic:Private_sector:IPLC
+Mozambique;9;Government:IPLC:NGO:Academic
+Mozambique;1;Government:Media:NGO:Private_sector:Academic:Local_authorities:Biodiversity_Institution
+Mozambique;12;Government:NGO:Academic:Private_sector:IPLC:Biodiversity_Institution
+Mozambique;7;Government:NGO:IPLC:Academic:Local_authorities:Biodiversity_Institution:Private_sector
+Mozambique;8;Government:Private_sector:Academic
+Mozambique;6;Government:Private_sector:IPLC:NGO:Local_authorities:Academic:Biodiversity_Institution
+Mozambique;20;Government:Private_sector:NGO:Civil
+Mozambique;17;Government
+Namibia;2.5;Government:Academic
+Namibia;5.2;Government:Academic:Civil
+Namibia;1.2;Government:Academic:Civil:Local_authorities
+Namibia;5.1;Government:Academic:IPLC:Civil
+Namibia;3.2;Government:Academic:NGO:Protected_areas
+Namibia;3.3;Government:Civil:Academic:NGO
+Namibia;4.2;Government:Civil:Academic:NGO
+Namibia;1.3;Government:Civil:Academic:Private_sector
+Namibia;2.3;Government:Civil:Local_authorities:IPLC:Private_sector
+Namibia;3.1;Government:Civil:Protected_areas:NGO:IPLC
+Namibia;1.1;Government:Education
+Namibia;5.3;Government
+Namibia;2.6;Government:International
+Namibia;2.2;Government:International:Local_authorities:IPLC
+Namibia;2.4;Government:Local_authorities
+Namibia;2.1;Government:Local_authorities:Civil:Academic
+Namibia;4.1;Government:NGO:Civil:Academic
+Niger;1;Government:Academic
+Niger;5;Government:Academic
+Niger;2;Government:Academic
+Niger;4;Government:Academic
+Niger;3;Government:Academic
+Nigeria;7;Government:Academic
+Nigeria;9;Government:Academic
+Nigeria;12;Government:IPLC:Protected_areas
+Nigeria;10;Government:Local_authorities:Academic
+Nigeria;14;Government:NGO
+Nigeria;11;Government:Protected_areas:Local_authorities
+Nigeria;1;Government
+Nigeria;2;Government
+Nigeria;4;Government
+Nigeria;8;Government
+Nigeria;13;Government
+Nigeria;3;Government:Protected_areas
+Nigeria;5;Government:Protected_areas
+Nigeria;6;Government:Protected_areas
+Rwanda;6;Government:Academic
+Rwanda;7;Government:Academic
+Rwanda;10;Government:Academic
+Rwanda;11;Government:Academic
+Rwanda;12;Government:Academic
+Rwanda;16;Government:Academic
+Rwanda;17;Government:Academic
+Rwanda;18;Government:Academic
+Rwanda;2;Government:Academic:Biodiversity_Institution:Private_sector
+Rwanda;5;Government:Academic:IPLC:NGO
+Rwanda;9;Government:Academic:Local_authorities
+Rwanda;3;Government:Academic:Local_authorities:Civil:NGO:Private_sector
+Rwanda;8;Government:Academic:NGO
+Rwanda;19;Government:Academic:NGO
+Rwanda;13;Government:IPLC
+Rwanda;15;Government:Local_authorities:Academic
+Rwanda;4;Government:Local_authorities:Civil:NGO:Private_sector
+Rwanda;1;Government:Media:Academic
+Rwanda;14;Government
+Sao Tome;1;Government:IPLC:NGO:International
+Sao Tome;2;Government:IPLC:NGO:International
+Sao Tome;3;Government:IPLC:NGO:International
+Sao Tome;4;Government:IPLC:NGO:International
+Sao Tome;5;Government:IPLC:NGO:International
+Sao Tome;6;Government:IPLC:NGO:International
+Sao Tome;14;Government:IPLC:NGO:International
+Sao Tome;14;Government:IPLC:NGO:International
+Sao Tome;14;Government:IPLC:NGO:International
+Sao Tome;11;Government:Media:IPLC:NGO:International
+Sao Tome;14;Government:Media:NGO:Civil:International
+Sao Tome;9;Government:NGO:IPLC:Local_authorities:International
+Sao Tome;7;Government:Private_sector:IPLC:NGO:International
+Sao Tome;8;Government:Private_sector:IPLC:NGO:International
+Sao Tome;10;Government:Private_sector:IPLC:NGO:International
+Sao Tome;12;Government:Private_sector:IPLC:NGO:International
+Sao Tome;13;Government:Private_sector:IPLC:NGO:International
+Sao Tome;14;Government:Private_sector:IPLC:NGO:International
+Sao Tome;14;Government:Private_sector:IPLC:NGO:International
+Sao Tome;14;Government:Private_sector:IPLC:NGO:International
+Senegal;A1;Government:Academic:International:NGO
+Senegal;A2;Government:Academic:International:NGO
+Senegal;D2;Government:International:Local_authorities:NGO:Private_sector:Civil:Academic
+Senegal;D1;Government:International:Private_sector
+Senegal;B1;Government:IPLC:NGO:Academic:Civil:Private_sector
+Senegal;B2;Government:IPLC:NGO:Academic:Civil:Private_sector
+Senegal;C1;Government:Local_authorities
+Senegal;C2;Government:Local_authorities:Private_sector
+Senegal;A3;Government:Private_sector:Academic:Civil:Local_authorities:NGO
+Senegal;D3;Government:Private_sector:Academic:NGO:Local_authorities:International:Civil
+Seychelles;13;Government:Academic
+Seychelles;19;Government:Academic
+Seychelles;14;Government:Academic:Civil
+Seychelles;20;Government:Academic:NGO:Protected_areas
+Seychelles;21;Government:Academic:NGO:Protected_areas
+Seychelles;23;Government:Academic:NGO:Protected_areas
+Seychelles;24;Government:Academic:NGO:Protected_areas
+Seychelles;28;Government:Academic:Private_sector
+Seychelles;12;Government:Civil:Private_sector:NGO
+Seychelles;26;Government:International:Private_consultant
+Seychelles;5;Government:NGO
+Seychelles;22;Government:NGO
+Seychelles;29;Government:NGO:Academic
+Seychelles;10;Government:NGO:Civil
+Seychelles;6;Government:Private_sector
+Seychelles;8;Government:Private_sector
+Seychelles;15;Government:Private_sector
+Seychelles;16;Government:Private_sector
+Seychelles;30;Government:Private_sector
+Seychelles;27;Government:Private_sector:NGO
+Seychelles;2;Government:Protected_areas:NGO
+Seychelles;3;Government:Protected_areas:NGO
+Seychelles;7;Government:Protected_areas:NGO
+Seychelles;9;Government:Protected_areas:NGO
+Seychelles;11;Government:Protected_areas:NGO:Civil
+Seychelles;1;Government:Protected_areas:NGO:Civil:Private_sector
+Seychelles;4;Government
+Seychelles;17;Government
+Seychelles;18;Government
+Seychelles;25;Government
+Seychelles;31;Government
+Sierra Leone;D1;Government:Academic
+Sierra Leone;D2;Government:Academic
+Sierra Leone;C2;Government:Academic:Biodiversity_Institution:Protected_areas:NGO
+Sierra Leone;E1;Government:Academic:Biodiversity_Institution:Protected_areas:NGO
+Sierra Leone;B4;Government:Academic:Civil:Protected_areas:Biodiversity_Institution
+Sierra Leone;C3;Government:Academic:Protected_areas
+Sierra Leone;A1;Government:Academic:Protected_areas:Biodiversity_Institution
+Sierra Leone;D4;Government:Academic:Protected_areas:Biodiversity_Institution
+Sierra Leone;C1;Government:Academic:Protected_areas:Local_authorities:Biodiversity_Institution
+Sierra Leone;B2;Government:Biodiversity_Institution:Academic:Local_authorities:Civil:Protected_areas
+Sierra Leone;A4;Government:Biodiversity_Institution:NGO:Protected_areas
+Sierra Leone;E2;Government:Biodiversity_Institution:Protected_areas
+Sierra Leone;E3;Government:Biodiversity_Institution:Protected_areas
+Sierra Leone;E5;Government:Biodiversity_Institution:Protected_areas
+Sierra Leone;A3;Government:Biodiversity_Institution:Protected_areas:Academic
+Sierra Leone;E4;Government:Biodiversity_Institution:Protected_areas:Academic
+Sierra Leone;B5;Government:Biodiversity_Institution:Protected_areas:Civil:Academic
+Sierra Leone;B1;Government:Local_authorities:Biodiversity_Institution:Academic
+Sierra Leone;D3;Government:Local_authorities:Protected_areas:Biodiversity_Institution:NGO:Civil
+Sierra Leone;A2;Government:NGO:Biodiversity_Institution:Protected_areas
+Sierra Leone;C5;Government:Protected_areas:Academic
+Sierra Leone;B3;Government:Protected_areas:Biodiversity_Institution:Academic
+Sierra Leone;C4;Government:Protected_areas:Biodiversity_Institution:Academic
+Somalia;15;Government:Academic:Private_sector:IPLC:Academic
+Somalia;12;Government:Civil:NGO:Local_authorities:Academic
+Somalia;14;Government:Local_authorities
+Somalia;5;Government:Local_authorities:Private_sector
+Somalia;18;Government:NGO:IPLC:Academic
+Somalia;9;Government:Private_sector
+Somalia;10;Government:Private_sector
+Somalia;13;Government:Private_sector:Academic:NGO:IPLC
+Somalia;4;Government:Private_sector:IPLC
+Somalia;7;Government:Private_sector:IPLC
+Somalia;1;Government
+Somalia;2;Government
+Somalia;3;Government
+Somalia;6;Government
+Somalia;8;Government
+Somalia;11;Government
+Somalia;16;Government
+Somalia;19;Government
+Somalia;17;Government:Civil
+Somalia;20;Government:International
+South Africa;6.5;Government:Academic
+South Africa;6.3;Government:Academic:Local_authorities:Biodiversity_Institution
+South Africa;6.1;Government:Academic:NGO:Local_authorities:Protected_areas
+South Africa;5.1;Government:Biodiversity_Institution
+South Africa;5.2;Government:Biodiversity_Institution:Academic
+South Africa;2.1;Government:Biodiversity_Institution:Local_authorities:Civil:Academic:NGO:Private_sector:Private_consultancies
+South Africa;3.2;Government:Biodiversity_Institution:Local_authorities:Private_sector:NGO
+South Africa;1.2;Government:Biodiversity_Institution:NGO:Academic:Protected_areas:Local_authorities
+South Africa;5.3;Government:Biodiversity_Institution:NGO:Local_authorities:Private_sector
+South Africa;3.5;Government:Biodiversity_Institution:Protected_areas:NGO:Private_sector:Local_authorities
+South Africa;2.2;Government:Local_auhtorities:NGO
+South Africa;3.3;Government:Local_authorities:Academic:Biodiversity_Institution:NGO
+South Africa;3.1;Government:Local_authorities:Academic:NGO:Biodiversity_Institution
+South Africa;3.6;Government:Local_authorities:NGO:Private_sector:Civil:Biodiversity_Institution
+South Africa;3.4;Government:Local_authorities:NGO:Protected_areas:NGO
+South Africa;6.2;Government:NGO:Academic:Civil
+South Africa;1.3;Government:NGO:Academic:Private_sector:Biodiversity_Institution:IPLC:Local_authorities
+South Africa;1.4;Government:NGO:Academic:Private_sector:Biodiversity_Institution:IPLC:Local_authorities
+South Africa;4.1;Government:NGO:Biodiversity_Institution:Academic
+South Africa;4.2;Government:NGO:Local_auhtorities
+South Africa;6.4;Government:Protected_areas:Academic:Biodiversity_Institution
+South Africa;1.1;Government:Protected_areas:NGO:Private_sector:Biodiversity_Institution:Local_authorities
+South Sudan;11;Government:Local_authorities:Academic
+South Sudan;8;Government:Local_authorities:Academic:Civil
+South Sudan;9;Government:Local_authorities:Academic:Civil
+South Sudan;1;Government:Local_authorities
+South Sudan;12;Government:Local_authorities
+South Sudan;13;Government:Local_authorities
+South Sudan;14;Government:Local_authorities
+South Sudan;15;Government:Local_authorities
+South Sudan;16;Government:Local_authorities
+South Sudan;17;Government:Local_authorities
+South Sudan;18;Government:Local_authorities
+South Sudan;19;Government:Local_authorities
+South Sudan;2;Government
+South Sudan;3;Government
+South Sudan;4;Government
+South Sudan;5;Government
+South Sudan;6;Government
+South Sudan;7;Government
+South Sudan;10;Government
+South Sudan;20;Government
+South Sudan;21;Government
+South Sudan;22;Government
+South Sudan;23;Government
+South Sudan;23;Government
+South Sudan;23;Government
+South Sudan;23;Government:Academic
+South Sudan;23;Government:Academic
+Sudan;1;Government:Academic
+Sudan;13;Government:Academic
+Sudan;15;Government:Academic
+Sudan;18;Government:Academic
+Sudan;19;Government:Academic
+Sudan;2;Government:Academic:Private_sector
+Sudan;7;Government:Academic:Private_sector
+Sudan;6;Government:NGO
+Sudan;8;Government:NGO
+Sudan;3;Government
+Sudan;4;Government
+Sudan;5;Government
+Sudan;9;Government
+Sudan;10;Government
+Sudan;11;Government
+Sudan;12;Government
+Sudan;17;Government
+Sudan;20;Government
+Tanzania;13;Government:Academic:NGO:Civil:Local_authorities
+Tanzania;10;Government:Academic:NGO:Civil:Private_sector
+Tanzania;11;Government:Academic:NGO:Civil:Protected_areas:Local_authorities
+Tanzania;12;Government:Academic:NGO:Civil:Protected_areas:Local_authorities
+Tanzania;2;Government:Academic:NGO:IPLC:Local_authorities
+Tanzania;16;Government:Academic:NGO:IPLC:Local_authorities
+Tanzania;19;Government:Academic:NGO:IPLC:Private_sector
+Tanzania;5;Government:Academic:NGO:Local_authorities:Civil:Media
+Tanzania;7;Government:Local_authorities:NGO:Civil
+Tanzania;9;Government:Local_authorities:NGO:Civil:Academic:Private_sector
+Tanzania;3;Government:Local_authorities:NGO:Civil:Private_sector
+Tanzania;17;Government:Local_authorities:Private_sector:Academic:IPLC:NGO
+Tanzania;1;Government:Local_authorities:Private_sector:Academic:Media:NGO:IPLC
+Tanzania;8;Government:Local_authorities:Private_sector:NGO:IPLC
+Tanzania;20;Government:NGO:Civil:Academic:Private_sector
+Tanzania;14;Government:NGO:IPLC:Academic:Private_sector
+Tanzania;15;Government:NGO:IPLC:Academic:Private_sector
+Tanzania;6;Government:NGO:IPLC:Academic:Protected_areas:Private_sector
+Tanzania;4;Government:NGO:IPLC:Local_authorities:Private_sector:Media
+Tanzania;18;Government:Private_sector:IPLC:NGO
+Togo;3;Government:Academic
+Togo;19;Government:Academic
+Togo;11;Government:Academic:Civil
+Togo;12;Government:Academic:Civil
+Togo;13;Government:Academic:Civil
+Togo;18;Government:Academic:Civil:Private_sector
+Togo;2;Government:Academic:International:Private_sector:Civil:Media
+Togo;16;Government:Academic:Media:Civil:Private_sector
+Togo;8;Government:Academic:Private_sector:Civil
+Togo;20;Government:Academic:Private_sector:Civil
+Togo;9;Government:Civil:Academic
+Togo;7;Government:Civil:Academic:Private_sector
+Togo;1;Government:Local_authorities:NGO:Academic:Private_sector:International
+Togo;17;Government:Private_sector:Academic:Civil:Media
+Togo;6;Government:Private_sector:Civil
+Togo;4;Government:Private_sector:Civil:Academic
+Togo;10;Government:Private_sector:Civil:Media:Academic
+Tunisia;1.2;Government:Academic
+Tunisia;1.3;Government:Academic
+Tunisia;2.1;Government:Academic
+Tunisia;5.1;Government:Local_authorities:Academic:International
+Tunisia;3.1;Government:NGO:Civil
+Tunisia;4.4;Government:NGO:Civil
+Tunisia;5.2;Government:NGO:Civil
+Tunisia;4.1;Government:NGO:Private_sector:Academic
+Tunisia;4.3;Government:NGO:Private_sector:Civil:Biodiversity_Institution
+Tunisia;1.1;Government
+Tunisia;1.4;Government
+Tunisia;2.2;Government
+Tunisia;2.3;Government
+Tunisia;3.2;Government
+Tunisia;4.2;Government
+Zambia;7;Government:IPLC
+Zambia;16;Government:IPLC:Education:Local_authorities
+Zambia;1;Government:Media:Civil:Civil
+Zambia;2;Government
+Zambia;3;Government
+Zambia;4;Government
+Zambia;5;Government
+Zambia;6;Government
+Zambia;8;Government
+Zambia;9;Government
+Zambia;10;Government
+Zambia;11;Government
+Zambia;12;Government
+Zambia;13;Government
+Zambia;14;Government
+Zambia;17;Government
+Zambia;18;Government
+Zambia;15;Government:IPLC:Local_authorities
+Zimbabwe;12;Government:Academic:NGO:Local_authorities:Private_sector
+Zimbabwe;1;Government:Academic:Protected_areas:NGO:Local_authorities:Civil
+Zimbabwe;15;Government:Biodiversity_Institution
+Zimbabwe;13;Government:International
+Zimbabwe;6;Government:Local_authorities:Academic
+Zimbabwe;3;Government:Local_authorities:NGO:Civil
+Zimbabwe;10;Government:NGO:Academic:IPLC
+Zimbabwe;2;Government:Private_sector
+Zimbabwe;18;Government:Private_sector:NGO
+Zimbabwe;4;Government:Protected_areas
+Zimbabwe;5;Government:Protected_areas
+Zimbabwe;7;Government:Protected_areas
+Zimbabwe;8;Government:Protected_areas
+Zimbabwe;9;Government
+Zimbabwe;11;Government
+Zimbabwe;14;Government
+Zimbabwe;17;Government
+Zimbabwe;16;Government:IPLC:Civil

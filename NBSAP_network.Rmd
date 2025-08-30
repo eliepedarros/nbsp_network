@@ -1,0 +1,2277 @@
+---
+title: "NBSAP_Network"
+author: "Author"
+date: "2025-06-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Packages
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+
+library(flextable)
+library(GGally)
+library(ggraph)
+library(igraph)
+library(Matrix)
+library(network)
+library(quanteda)
+library(sna)
+library(tidygraph)
+library(tidyverse)
+library(tm)
+library(tibble)
+library(dplyr)
+library(tidyr)
+library(visNetwork)
+library(shiny)
+library(sharpshootR)
+library(multinet)
+library(here)
+library(stringr)
+```
+
+# Data loading and preparation
+
+```{r}
+
+
+NBSAP_raw <- read.csv2("NBSAP.csv",header=T)
+
+
+survey <- read.csv2("CASCADE_survey.csv",header=F)
+
+
+colnames(survey) <- c("id",
+                     "partnership","type","COUNTRY","about","target","intensity",
+                      "partnership","type","COUNTRY","about","target","intensity","add",
+                      "partnership","type","COUNTRY","about","target","intensity","add",
+                       "partnership","type","COUNTRY","about","target","intensity","add",
+                       "partnership","type","COUNTRY","about","target","intensity"
+                     )
+
+survey <- survey[-1,]
+
+
+
+
+surveylist1 <- list()
+
+for(row in 1:nrow(survey)){
+  
+respondant <- survey[row,1]
+partnership1 <- survey[row,2:7]
+partnership2 <- survey[row,8:13]
+partnership3 <- survey[row,15:20]
+partnership4 <- survey[row,22:27]
+partnership5 <- survey[row,29:34]
+
+response1 <- cbind(respondant,partnership1)
+response2 <- cbind(respondant,partnership2)
+response3 <- cbind(respondant,partnership3)
+response4 <- cbind(respondant,partnership4)
+response5 <- cbind(respondant,partnership5)
+
+name <- paste("resp", row, sep="")
+
+tmp <- assign(name,rbind(response1,response2,response3,response4,response5))
+
+surveylist1[[name]] <- tmp
+
+}
+
+surveylist1 <- bind_rows(surveylist1)
+
+surveylist1$type <- as.character(surveylist1$type)
+
+
+
+surveylist1[surveylist1 == "community based organisation"] <- "Community-based organisation"
+surveylist1[surveylist1 == ""] <- NA
+surveylist1[surveylist1 == "Charity and research centre, plus tourism business"] <- "Charity, Research Centre and tourism business"
+surveylist1 <- as.data.frame(surveylist1)
+
+
+
+surveylist1 <- as.data.frame(surveylist1)
+surveylist1 <- surveylist1[!surveylist1$COUNTRY %in% "", ]
+surveylist1$ID <- seq.int(nrow(surveylist1))
+#Afghanistan has been filled by mistake by a respondant
+surveylist1 <- filter(surveylist1, !surveylist1$COUNTRY == "Afghanistan")
+
+
+surveylist <-surveylist1
+
+
+
+surveylist[surveylist == "Democratic Republic of the Congo"] <- "Congo DRC" 
+
+ surveylist$partnership <-sub ("World Wildlife Foundation" , "WWF" , surveylist$partnership)
+  surveylist$partnership <-sub ("CATIE - Centro Agronómico Tropical de Investigación y Enseñanza" , "CATIE" , surveylist$partnership)
+ surveylist$partnership <-sub ("Sokoini University of Agriculture" , "Sokoine University of Agriculture" , surveylist$partnership)
+ surveylist$partnership <-sub ("Southern Tanzania Elephant Programme" , "Southern Tanzania Elephant Program" , surveylist$partnership)
+ surveylist$partnership <-sub ("Tanzania Wildlife Research Institue" , "Tanzania Wildlife Research Institute (TAWIRI)" , surveylist$partnership)
+ surveylist$partnership <-sub ("WCS-Cambodia" , "Wildlife Conservation Society" , surveylist$partnership)
+ surveylist$partnership <-sub ("WWF Zambia" , "WWF" , surveylist$partnership)
+
+```
+
+# **a) The actors identified by Parties in their NBSAPs**
+
+## Figure 2
+
+```{r}
+
+# Function to transform our excel dataset to a network
+
+graph_from_string <- function(x) {
+  z <- str2expression(strsplit(x, ",")[[1]])
+  do.call(igraph:::graph_from_literal_i, list(z))
+}
+
+
+# Function to get the metrics values
+
+get_centrality_metrics <- function(graph, country) {
+  country_clean <- tolower(gsub("[-_ ]", "", country))
+  node_names <- V(graph)$name
+  node_names_clean <- tolower(gsub("[-_ ]", "", node_names))
+  
+  academic_nodes <- node_names[grepl("academic", node_names_clean) & grepl(country_clean, node_names_clean)]
+  
+  if (length(academic_nodes) == 0) return(NULL)
+  
+  degree_vals <- igraph::degree(graph)[academic_nodes]
+  betweenness_vals <- igraph::betweenness(graph)[academic_nodes]
+  eigen_vals <- tryCatch(igraph::evcent(graph)$vector[academic_nodes], error = function(e) rep(NA, length(academic_nodes)))
+  closeness_vals <- igraph::closeness(graph)[academic_nodes]
+  cluster_vals <- sapply(academic_nodes, function(n) {
+    tryCatch(igraph::transitivity(graph, type = "local", vids = n), error = function(e) NA)
+  })
+  
+  data.frame(
+    Country = country,
+    Node = academic_nodes,
+    Degree = degree_vals,
+    Betweenness = betweenness_vals,
+    Eigenvector = eigen_vals,
+    Closeness = closeness_vals,
+    ClusteringCoef = cluster_vals,
+    stringsAsFactors = FALSE
+  )
+}
+
+
+
+
+
+
+# Tidying the dataset
+
+NBSAP_raw <- as_tibble(NBSAP_raw)
+NBSAP_raw2 <- NBSAP_raw
+NBSAP_raw2$Country <- as.factor(NBSAP_raw2$Country)
+NBSAP_raw2$Country <- str_replace_all(NBSAP_raw2$Country,'-',"")
+NBSAP_raw2$Country <- str_replace_all(NBSAP_raw2$Country,' ',"")
+NBSAP_raw2$Country <- str_replace_all(NBSAP_raw2$Country,'_',"")
+
+NBSAP_raw2$Country <- as.factor(NBSAP_raw2$Country)
+
+
+# The set of networks with country name attached to each actor
+
+
+NBSAP_raw3 <- NBSAP_raw2
+NBSAP_raw2$Formated <- paste0(NBSAP_raw2$Network,"-",NBSAP_raw2$Network)
+NBSAP_raw3$Formated <- str_replace_all(NBSAP_raw2$Network,':',paste0("_",NBSAP_raw2$Country,":"))
+NBSAP_raw3$Formated <- str_replace_all(NBSAP_raw3$Formated,'-',paste0("_",NBSAP_raw3$Country,"-"))
+
+  # Adding Country's name to each actor
+
+NBSAP_raw3$Formated <- paste0(NBSAP_raw3$Formated,"_",NBSAP_raw3$Country)
+NBSAP_raw3$Formated <- paste0(NBSAP_raw3$Formated,"-",NBSAP_raw3$Formated)
+
+countries <- as.character(levels(as.factor(NBSAP_raw3$Country)))
+df <- list()
+for(i in seq_along(countries)){
+  b <- filter(NBSAP_raw3, Country == countries[[i]])
+  name <- paste(countries[[i]])
+  df[[name]] <- b
+}
+
+NBSAP <- list()
+for(i in 1:length(df)){
+
+df2 <- df[[i]]
+
+Network_country <- list()
+for (row in 1:nrow(df2)) {
+  
+  country_name <- paste(df2$Country[1]) 
+  net <- df2[row,]
+  e <- graph_from_string(net$Formated)
+  name <- paste(country_name,"net",row,sep="_")
+  Network_country[[name]] <- e
+ 
+}
+  
+name2 <- paste(df[[i]]$Country[1])
+NBSAP[[name2]] <- Network_country
+
+}
+
+
+NBSAP2 <- list()
+Country_net <- list()
+
+for (i in 1:length(NBSAP)) {
+  
+    Country_net <- NBSAP[[i]]  
+    
+  # Selection du network
+    
+     subgraph_list_df <- lapply(Country_net, igraph::as_data_frame)
+     subgraph_df <- do.call(rbind, subgraph_list_df)
+     a <- graph_from_data_frame(subgraph_df , directed = FALSE)
+      
+     name <- names(NBSAP[i])
+     
+     NBSAP2[[name]] <- a
+     
+}
+
+
+NBSAP_country <- NBSAP2
+
+
+# Without country's name attached (for the NBSAP_TSC network analysis)
+
+
+countries <- as.character(levels(as.factor(NBSAP_raw2$Country)))
+df <- list()
+for(i in seq_along(countries)){
+  b <- filter(NBSAP_raw2, Country == countries[[i]])
+  name <- paste(countries[[i]])
+  df[[name]] <- b
+}
+
+NBSAP <- list()
+for(i in 1:length(df)){
+
+df2 <- df[[i]]
+
+Network_country <- list()
+for (row in 1:nrow(df2)) {
+  
+  country_name <- paste(df2$Country[1]) 
+  net <- df2[row,]
+  e <- graph_from_string(net$Formated)
+  name <- paste(country_name,"net",row,sep="_")
+  Network_country[[name]] <- e
+ 
+}
+  
+name2 <- paste(df[[i]]$Country[1])
+NBSAP[[name2]] <- Network_country
+
+}
+
+ 
+NBSAP2_bis <- list()
+Country_net <- list()
+
+#Selection du pays
+
+for (i in 1:length(NBSAP)) {
+  
+    Country_net <- NBSAP[[i]]
+    
+  # Selection du network
+    
+     subgraph_list_df <- lapply(Country_net, igraph::as_data_frame)
+     subgraph_df <- do.call(rbind, subgraph_list_df)
+     a <- graph_from_data_frame(subgraph_df , directed = FALSE)
+      
+     name <- names(NBSAP[i])
+     
+     NBSAP2_bis[[name]] <- a
+     
+}
+
+
+
+
+
+for (i in seq_along(NBSAP2_bis)) {
+  
+  NBSAP2_ter <- NBSAP2_bis[[i]]
+
+V(NBSAP2_ter)$name <- gsub(".*CBD.*", "CBD Secretariat", V(NBSAP2_ter)$name, perl=TRUE)
+
+
+NBSAP2_bis[[i]] <-          NBSAP2_ter
+}
+
+
+# Figure 2
+
+here()
+pdf("Supp.Info.3.pdf")
+
+for (i in 1:51) {
+  par()
+  name=names(NBSAP_country[i])
+  plot(NBSAP_country[[i]],main=name, layout = layout_with_fr)
+}
+
+dev.off()
+
+pdf("Figure_2.pdf", width = 12, height = 12)
+
+par(mfrow = c(2, 2), mar = c(4, 4, 4, 4), oma = c(1, 0.5, 0.5, 0.5))
+
+c <- c(14, 47, 10, 46)
+
+for (i in c) {
+  name <- names(NBSAP_country[i])
+  plot(NBSAP_country[[i]], main = name, layout = layout_with_kk,vertex.color="gray",
+       vertex.label.color="black",vertex.label.cex=1.2)
+}
+
+dev.off()
+
+
+
+# Metrics
+
+
+combined_metrics <- list()
+
+for (i in seq_along(NBSAP_country)) {
+  name <- names(NBSAP_country)[i]
+  graph <- NBSAP_country[[i]]
+  
+  country_clean <- tolower(gsub("[-_ ]", "", name))
+  node_names <- V(graph)$name
+  node_names_clean <- tolower(gsub("[-_ ]", "", node_names))
+  
+  academic_nodes <- node_names[grepl("academic", node_names_clean) &
+                                grepl(country_clean, node_names_clean)]
+  
+  if (length(academic_nodes) == 0) {
+    metrics_df <- data.frame(
+      Country = name,
+      Degree = NA,
+      Betweenness = NA,
+      Eigenvector = NA,
+      Closeness = NA,
+      ClusteringCoef = NA
+    )
+  } else {
+    metrics_df <- data.frame(
+      Country = name,
+      Degree = mean(degree(graph)[academic_nodes], na.rm = TRUE),
+      Betweenness = mean(betweenness(graph)[academic_nodes], na.rm = TRUE),
+      Eigenvector = mean(evcent(graph)$vector[academic_nodes], na.rm = TRUE),
+      Closeness = mean(closeness(graph)[academic_nodes], na.rm = TRUE),
+      ClusteringCoef = mean(transitivity(graph, type = "local")[academic_nodes], na.rm = TRUE)
+    )
+  }
+  
+  combined_metrics[[name]] <- metrics_df
+}
+
+final_table <- do.call(rbind, combined_metrics)
+
+my_theme <- ttheme_default(
+  core = list(
+    fg_params = list(cex = 0.9),
+    bg_params = list(fill = NA, col = NA)
+  ),
+  colhead = list(
+    fg_params = list(cex = 1, fontface = "bold"),
+    bg_params = list(fill = NA, col = NA)
+  )
+)
+
+# --- Export uniquement le tableau ---
+pdf("Figure2_Supp_All.pdf", width = 15, height = 20)
+grid.table(final_table, rows = NULL, theme = my_theme)
+dev.off()
+
+
+```
+
+## Table 2
+
+```{r}
+
+
+# Degree centrality
+
+degre_moyen <- sapply(NBSAP2_bis, function(g) {
+  mean(igraph::degree(g, mode = "all"))
+})
+
+df_degre_moyen <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  degre_moyen = degre_moyen
+)
+
+
+#Edge density
+
+densites <- sapply(NBSAP2_bis, function(g) {
+  edge_density(g, loops = F)
+})
+# Créer un tableau avec les résultats
+df_densites <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  densite = densites
+)
+
+#betweenness centrality
+
+betweenness_moyenne <- sapply(NBSAP2_bis, function(e) {
+  mean(igraph::betweenness(e, directed = FALSE, normalized = T))
+})
+
+df_betweenness <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  betweenness_moyenne = betweenness_moyenne
+)
+
+#Eigen 
+
+eigen_moyenne <- sapply(NBSAP2_bis, function(g) {
+  mean(eigen_centrality(g, directed = FALSE, scale = TRUE)$vector)
+})
+
+df_eigen <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  eigenvector_moyenne = eigen_moyenne
+)
+
+# Closeness
+
+closeness_moyen <- sapply(NBSAP2_bis, function(g) {
+  mean(igraph::closeness(g, mode = "all",normalized = T))
+})
+
+df_closeness_moyen <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  closeness_moyen = closeness_moyen
+  
+
+)
+
+
+
+#Actors number
+
+
+nb_actors <- sapply(NBSAP2_bis, function(g) {
+  vcount(g)
+})
+nb_actors <- data.frame(
+  id_reseau = seq_along(NBSAP2_bis),
+  nombre_acteurs = nb_actors
+)
+
+
+```
+
+## Table 3
+
+```{r}
+
+# Degree centrality
+
+degree_ce <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  Score <-igraph::centr_degree(NBSAP2_bis[[i]],normalized = T,loops = T)$res
+  b <- V(NBSAP2_bis[[i]])
+ name=names(NBSAP2_bis[i])
+ c <- cbind(Score,b)
+ 
+  degree_ce[[name]] <- c
+  
+}
+
+d <- do.call(rbind.data.frame, degree_ce)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries)
+
+centrality <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+centrality <- centrality[,-2]
+centrality$Country <- as.factor(centrality$Country)
+centrality$Stakeholder <- as.factor(centrality$Stakeholder)
+
+deg1 <- centrality %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+deg <- deg1%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+
+# Betweenness centrality
+
+betw <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  Score <-igraph::betweenness(NBSAP2_bis[[i]],normalized = T)
+  b <- V(NBSAP2_bis[[i]])
+ name=names(NBSAP2_bis[i])
+ c <- cbind(Score,b)
+
+  betw[[name]] <- c
+  
+}
+
+
+d <- do.call(rbind.data.frame, betw)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries) 
+
+betweennesse <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+betweennesse <- betweennesse[,-2]
+betweennesse$Country <- as.factor(betweennesse$Country)
+betweennesse$Stakeholder <- as.factor(betweennesse$Stakeholder)
+
+bet1 <- betweennesse %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+bet <- bet1%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+
+# Closeness centrality
+
+clos <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  Score <-igraph::closeness(NBSAP2_bis[[i]],normalized = F)
+  b <- V(NBSAP2_bis[[i]])
+ name=names(NBSAP2_bis[i])
+ c <- cbind(Score,b)
+ 
+  clos[[name]] <- c
+  
+}
+
+d <- do.call(rbind.data.frame, clos)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries) 
+
+closenesse <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+closenesse <- closenesse[,-2]
+
+closenesse$Country <- as.factor(closenesse$Country)
+closenesse$Stakeholder <- as.factor(closenesse$Stakeholder)
+
+clo1 <- closenesse %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+clo <- clo1%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+# Eigen centrality
+
+eig <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  Score <-igraph::eigen_centrality(NBSAP2_bis[[i]],scale = T)$vector
+  b <- V(NBSAP2_bis[[i]])
+ name=names(NBSAP2_bis[i])
+ c <- cbind(Score,b)
+ 
+  eig[[name]] <- c
+  
+}
+
+d <- do.call(rbind.data.frame, eig)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries) 
+
+eigene <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+eigene <- eigene[,-2]
+
+eigene$Country <- as.factor(eigene$Country)
+eigene$Stakeholder <- as.factor(eigene$Stakeholder)
+
+eig <- eigene %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+eig <- eig%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+# Clustering
+
+clus <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  Score <-igraph::transitivity(NBSAP2_bis[[i]])
+  b <- V(NBSAP2_bis[[i]])
+ name=names(NBSAP2_bis[i])
+ c <- cbind(Score,b)
+ 
+  clus[[name]] <- c
+  
+}
+
+d <- do.call(rbind.data.frame, clus)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries) 
+
+cluse <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+cluse <- cluse[,-2]
+
+cluse$Country <- as.factor(cluse$Country)
+cluse$Stakeholder <- as.factor(cluse$Stakeholder)
+
+clus <- cluse %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+clus <- clus%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+# Edge density
+
+edg <- list()
+NBSAP2_ter <- list()
+for (i in seq_along(NBSAP2_bis)) {
+  NBSAP2_ter <- NBSAP2_bis  
+  NBSAP2_ter[[i]] <- igraph::simplify( NBSAP2_ter[[i]])
+  names(NBSAP2_ter[i]) <- names(NBSAP2_bis[i])
+
+  Score <-abs(igraph::edge_density(NBSAP2_ter[[i]],loops=F)-1)
+  b <- V(NBSAP2_ter[[i]])
+  name=names(NBSAP2_ter[i])
+  c <- cbind(Score,b)
+ 
+  edg[[name]] <- c
+  
+}
+
+d <- do.call(rbind.data.frame, edg)
+d$Countries <- rownames(d)
+rownames(d) <- NULL
+d$Countries <- sub(" ", "", d$Countries) 
+d$Countries <- sub("_", "", d$Countries) 
+d$Countries <- sub("-", "", d$Countries) 
+
+edge <- d %>% separate(Countries, c('Country', 'Stakeholder'))
+edge <- edge[,-2]
+
+edge$Country <- as.factor(edge$Country)
+edge$Stakeholder <- as.factor(edge$Stakeholder)
+
+edg <- edge %>% arrange(Country, Score) %>%
+    group_by(Country) %>% 
+    mutate(rank = rank(-Score,ties.method = "first"))
+
+edg <- edg%>%
+group_by(Stakeholder)%>% 
+summarise(Median=median(rank), Std=sd(rank))
+
+edge_density <- edg
+clustering_coef <- clus
+Degree_centrality <- deg
+Betweenness_centrality <- bet
+Eigen_centrality <- eig
+Closeness_centrality <- clo
+
+```
+
+# **b) Linkages between pre-COP NBSAPs and the TSCs and the potential to increase knowledge exchange**
+
+## Table 4
+
+#### NBSAP network
+
+```{r}
+
+NBSAP3 <- NBSAP2
+
+# Creating an edge between Government_"Country" and CBD
+
+NBSAP4 <- list()
+for (i in seq_along(NBSAP3)) {
+  
+a <- V(NBSAP3[[i]])[grepl(paste("Government"),names(V(NBSAP3[[i]])))]
+
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  
+  NBSAP4[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="CBD Secretariat") %>% add_edges(c("CBD Secretariat",b))
+  
+}
+
+if(t=="na"){
+  
+  NBSAP4[[i]] <- NBSAP3[[i]] 
+}
+}
+
+# One big network
+
+subgraph_list_df <- lapply(NBSAP4, igraph::as_data_frame)
+ subgraph_df <- do.call(rbind, subgraph_list_df)
+   NBSAP_network <- graph_from_data_frame(subgraph_df , directed = FALSE)
+      
+
+i <- toVisNetworkData(NBSAP_network,idToLabel = T)
+
+
+visNetwork(nodes = i$nodes,edges = i$edges)%>% 
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)%>% 
+  visInteraction(navigationButtons = TRUE)%>%
+visIgraphLayout(layout = "layout.fruchterman.reingold") 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+#### NBSAP+TSC
+
+```{r}
+
+NBSAP3 <- NBSAP2
+
+centres1 <- c("Sahara and Sahel Observatory (OSS)"="Sahara and Sahel Observatory (OSS)",
+              "South African National Biodiversity Institute (SANBI)"="South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)"="Ecological Monitoring Centre (CSE)","Central African Forest Commission (COMIFAC)"="Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)"="Regional Centre for Mapping of Resources for Development (RCMRD)","Algeria"="Sahara and Sahel Observatory (OSS)",
+     "Angola"="South African National Biodiversity Institute (SANBI)",
+     "Benin"="Ecological Monitoring Centre (CSE)",
+     "Botswana"="South African National Biodiversity Institute (SANBI)",
+     "BurkinaFaso"="Ecological Monitoring Centre (CSE)",
+     "Burundi"="Central African Forest Commission (COMIFAC)",
+     "CaboVerde"="Ecological Monitoring Centre (CSE)",
+     "Cameroon"="Central African Forest Commission (COMIFAC)",
+     'CentrafricanRepublic'="Central African Forest Commission (COMIFAC)",
+     "CBD Secretariat"="CBD Secretariat",
+     "Chad"="Central African Forest Commission (COMIFAC)",
+     "Comoros"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Congo"="Central African Forest Commission (COMIFAC)",
+     "IvoryCoast"="Ecological Monitoring Centre (CSE)",
+     "DRC"="Central African Forest Commission (COMIFAC)",
+     "Egypt"="Sahara and Sahel Observatory (OSS)",
+     "EquatorialGuinea"="Central African Forest Commission (COMIFAC)",
+     "Eritrea"="Sahara and Sahel Observatory (OSS)",
+     "Eswatini"="South African National Biodiversity Institute (SANBI)",
+     "Ethiopia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Gabon"="Central African Forest Commission (COMIFAC)",
+     "Gambia"="Ecological Monitoring Centre (CSE)",
+     "Ghana"="Ecological Monitoring Centre (CSE)",
+     "Guinea"="Ecological Monitoring Centre (CSE)",
+     "GuineaBissau"="Ecological Monitoring Centre (CSE)",
+     "Kenya"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Lesotho"="South African National Biodiversity Institute (SANBI)",
+     "Liberia"="Ecological Monitoring Centre (CSE)",
+     "Madagascar"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Malawi"="South African National Biodiversity Institute (SANBI)",
+     "Mali"="Ecological Monitoring Centre (CSE)",
+     "Mauritius"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+      "Mauritania"="Sahara and Sahel Observatory (OSS)",
+     "Morocco"="Sahara and Sahel Observatory (OSS)",
+     "Mozambique"="South African National Biodiversity Institute (SANBI)",
+     "Namibia"="South African National Biodiversity Institute (SANBI)",
+     "Niger"="Ecological Monitoring Centre (CSE)",
+     "Nigeria"="Ecological Monitoring Centre (CSE)",
+     "Rwanda"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SaoTome"="Central African Forest Commission (COMIFAC)",
+     "Senegal"="Ecological Monitoring Centre (CSE)",
+     "Seychelles"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SierraLeone"="Ecological Monitoring Centre (CSE)",
+     "Somalia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SouthAfrica"="South African National Biodiversity Institute (SANBI)",
+     "SouthSudan"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Sudan"="Sahara and Sahel Observatory (OSS)",
+     "Tanzania"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Togo"="Ecological Monitoring Centre (CSE)",
+     "Tunisia"="Sahara and Sahel Observatory (OSS)",
+     "Zambia"="South African National Biodiversity Institute (SANBI)",
+     "Zimbabwe"="South African National Biodiversity Institute (SANBI)")
+
+centres <- as.data.frame(centres1)
+centres <- tibble::rownames_to_column(centres, "Node")
+
+
+n <- as.data.frame(names(NBSAP3))
+colnames(n) <- "Node"
+Centres1 <- left_join(n,centres, by = "Node")
+
+# Creating a link between Government and TSC
+
+        #Sahara and Sahel Observatory (OSS)
+      sah <- filter(Centres1,Centres1$centres1 =="Sahara and Sahel Observatory (OSS)")
+      
+      clist <- sah$Node
+      my_patterns =paste0("Government_",clist)
+      NBSAP4bis <- list()
+      for (i in seq_along(NBSAP3)) {
+      a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+      b <- as.character(a$name)
+      t <- ifelse(identical(b, character(0)),"na",b)
+      if(t=="na"){
+       NBSAP4bis[[i]] <- NBSAP3[[i]]
+      }
+      if(!t=="na"){
+        NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Sahara and Sahel Observatory (OSS)") %>% add_edges(c("Sahara and Sahel Observatory (OSS)",b))
+      }}
+      
+        #South African National Biodiversity Institute (SANBI)
+      
+      sa <- filter(Centres1,Centres1$centres1 =="South African National Biodiversity Institute (SANBI)")
+      clist <- sa$Node
+      my_patterns =paste0("Government_",clist)
+      for (i in seq_along(NBSAP3)) {
+      a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+      b <- as.character(a$name)
+      t <- ifelse(identical(b, character(0)),"na",b)
+      
+      if(!t=="na"){
+        NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="South African National Biodiversity Institute (SANBI)") %>% add_edges(c("South African National Biodiversity Institute (SANBI)",b))
+      }}
+      
+        #Regional Centre for Mapping of Resources for Development (RCMRD)
+      
+      rc <- filter(Centres1,Centres1$centres1 =="Regional Centre for Mapping of Resources for Development (RCMRD)")
+      clist <- rc$Node
+      my_patterns =paste0("Government_",clist)
+      for (i in seq_along(NBSAP3)) {
+      a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+      b <- as.character(a$name)
+      t <- ifelse(identical(b, character(0)),"na",b)
+      
+      if(!t=="na"){
+        NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Regional Centre for Mapping of Resources for Development (RCMRD)") %>% add_edges(c("Regional Centre for Mapping of Resources for Development (RCMRD)",b))
+      }}
+      
+        #Ecological Monitoring Centre (CSE)
+      
+      em <- filter(Centres1,Centres1$centres1 =="Ecological Monitoring Centre (CSE)")
+      clist <- em$Node
+      my_patterns =paste0("Government_",clist)
+      for (i in seq_along(NBSAP3)) {
+      a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+      b <- as.character(a$name)
+      t <- ifelse(identical(b, character(0)),"na",b)
+      
+      if(!t=="na"){
+        NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Ecological Monitoring Centre (CSE)") %>% add_edges(c("Ecological Monitoring Centre (CSE)",b))
+      }}
+      
+        #Central African Forest Commission (COMIFAC)
+      
+        ca <- filter(Centres1,Centres1$centres1 =="Central African Forest Commission (COMIFAC)")
+        clist <- ca$Node
+        my_patterns =paste0("Government_",clist)
+        for (i in seq_along(NBSAP3)) {
+        a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+        b <- as.character(a$name)
+        t <- ifelse(identical(b, character(0)),"na",b)
+        
+        if(!t=="na"){
+          NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Central African Forest Commission (COMIFAC)") %>% add_edges(c("Central African Forest Commission (COMIFAC)",b))
+        }}
+
+
+
+# Creating a link between TSC and CBD
+
+    centres <- as.data.frame(centres)
+    centres$Node <- as.factor(centres$Node)
+    cen <- levels(centres$Node)
+    cen <- cen[2:7]
+    cen <- c("OSS","COMIFAC","CSE","RCMRD","SANBI")
+    names(NBSAP4bis) <- names(NBSAP3)
+    
+    NBSAP4 <- list()
+    
+    for (i in seq_along(NBSAP4bis)) {
+      
+    a <- V(NBSAP4bis[[i]])[grepl(paste(cen, collapse='|'),names(V(NBSAP4bis[[i]])))]
+    
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    
+    if(!t=="na"){
+      
+      NBSAP4[[i]] <- NBSAP4bis[[i]] %>% add_vertices(1,name="CBD Secretariat") %>% add_edges(c("CBD Secretariat",b))
+      
+    }
+    
+    if(t=="na"){
+      
+      NBSAP4[[i]] <- NBSAP4bis[[i]] 
+    }
+    }
+    
+    
+    
+    # One big network
+    
+    subgraph_list_df <- lapply(NBSAP4, igraph::as_data_frame)
+     subgraph_df <- do.call(rbind, subgraph_list_df)
+       NBSAP_TSC <- graph_from_data_frame(subgraph_df , directed = FALSE)
+    
+      NBSAP_TSC <- NBSAP_TSC + edges("Sahara and Sahel Observatory (OSS)","Central African Forest Commission (COMIFAC)") +edges("Sahara and Sahel Observatory (OSS)","South African National Biodiversity Institute (SANBI)")+edges("Sahara and Sahel Observatory (OSS)","Ecological Monitoring Centre (CSE)")+edges("Sahara and Sahel Observatory (OSS)","Regional Centre for Mapping of Resources for Development (RCMRD)") +edges("Central African Forest Commission (COMIFAC)","South African National Biodiversity Institute (SANBI)")   +edges("Central African Forest Commission (COMIFAC)","Ecological Monitoring Centre (CSE)")+edges("Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)")+edges("South African National Biodiversity Institute (SANBI)","Regional Centre for Mapping of Resources for Development (RCMRD)")+   edges("South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)")+ edges("Regional Centre for Mapping of Resources for Development (RCMRD)","Ecological Monitoring Centre (CSE)")
+    
+      i <- toVisNetworkData(NBSAP_TSC,idToLabel = T)
+    
+    
+    visNetwork(nodes = i$nodes,edges = i$edges)%>% 
+      visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)%>% 
+      visInteraction(navigationButtons = TRUE)%>%
+    visIgraphLayout(layout = "layout.fruchterman.reingold")
+```
+
+### Figure 3
+
+```{r}
+library(GGally)
+library(network)
+library(sna)
+library(ggplot2)
+library(intergraph)
+library(gridExtra)
+library(grid)
+
+# 1. NBSAP_network
+NBSAP_network1 <- NBSAP_network
+vertex_names <- V(NBSAP_network1)$name
+
+extract_country <- function(x) {
+  parts <- strsplit(x, "_")[[1]]
+  tail(parts, 1)
+}
+pays <- sapply(vertex_names, extract_country)
+V(NBSAP_network1)$pays <- pays
+
+pays_for_numbering <- sort(unique(pays[pays != "CBD Secretariat"]))
+pays_id <- setNames(seq_along(pays_for_numbering), pays_for_numbering)
+
+V(NBSAP_network1)$pays_num <- ifelse(
+  pays == "CBD Secretariat",
+  NA,
+  pays_id[pays]
+)
+
+V(NBSAP_network1)$node_label <- ifelse(
+  pays == "CBD Secretariat",
+  "CBD Secretariat",
+  as.character(V(NBSAP_network1)$pays_num)
+)
+
+V(NBSAP_network1)$node_color <- ifelse(
+  pays == "CBD Secretariat",
+  "gray",
+  "gray"
+)
+
+V(NBSAP_network1)$label_color <- "black"
+
+node_size <- ifelse(pays == "CBD Secretariat",  0.8, 0.2)
+
+
+label_position <- ifelse(V(NBSAP_network1)$node_label == "CBD Secretariat", "below", "center")
+
+
+NBSAP_s <- igraph::simplify(NBSAP_network1)
+V(NBSAP_s)$node_label <- V(NBSAP_network1)$node_label
+V(NBSAP_s)$node_color <- V(NBSAP_network1)$node_color
+V(NBSAP_s)$label_color <- V(NBSAP_network1)$label_color
+V(NBSAP_s)$label_position <- label_position
+
+NBSAP_network_graph <- ggnet2(NBSAP_s,
+       size = node_size,
+       label = V(NBSAP_s)$node_label,
+       label.size = 2.7,
+       label.position = V(NBSAP_s)$label_position,
+       color = V(NBSAP_s)$node_color,
+       label.color = V(NBSAP_s)$label_color,
+       edge.color = "gray") +
+  guides(size = "none") + 
+  theme_void() +
+  theme(plot.margin = margin(1, 1, 1, 1))
+
+
+
+
+
+#NBSAP-TSC
+
+NBSAP_network2 <- NBSAP_TSC
+vertex_names2 <- V(NBSAP_network2)$name
+
+
+TSC_list <- c(
+  "Sahara and Sahel Observatory (OSS)",
+  "Central African Forest Commission (COMIFAC)",
+  "Ecological Monitoring Centre (CSE)",
+  "South African National Biodiversity Institute (SANBI)",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)"
+)
+
+
+custom_TSC_labels <- c(
+  "Sahara and Sahel Observatory (OSS)" = "OSS",
+  "Central African Forest Commission (COMIFAC)" = "COMIFAC",
+  "Ecological Monitoring Centre (CSE)" = "CSE",
+  "South African National Biodiversity Institute (SANBI)" = "SANBI",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)" = "RCMRD"
+)
+
+
+extract_country <- function(x) {
+  parts <- strsplit(x, "_")[[1]]
+  tail(parts, 1)
+}
+pays2 <- sapply(vertex_names2, extract_country)
+V(NBSAP_network2)$pays <- pays2
+
+
+pays_for_numbering2 <- sort(unique(pays2[!(vertex_names2 %in% c("CBD Secretariat", TSC_list))]))
+V(NBSAP_network2)$pays_num <- ifelse(
+  vertex_names2 %in% c("CBD Secretariat", TSC_list),
+  NA,
+  pays_id[pays2]
+)
+
+
+V(NBSAP_network2)$node_label <- ifelse(
+  vertex_names2 %in% names(custom_TSC_labels),
+  custom_TSC_labels[vertex_names2],
+  ifelse(vertex_names2 == "CBD Secretariat", "CBD Secretariat", as.character(V(NBSAP_network2)$pays_num))
+)
+
+
+
+V(NBSAP_network2)$node_color <- "gray"
+
+
+V(NBSAP_network2)$label_color <- "black"
+
+
+node_size2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list),  0.8, 0.2)
+
+
+label_position2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list), "below", "center")
+
+
+NBSAP_s2 <- igraph::simplify(NBSAP_network2)
+V(NBSAP_s2)$node_label <- V(NBSAP_network2)$node_label
+V(NBSAP_s2)$node_color <- V(NBSAP_network2)$node_color
+V(NBSAP_s2)$label_color <- V(NBSAP_network2)$label_color
+V(NBSAP_s2)$label_position <- label_position2
+
+
+NBSAP_TSC_graph <- ggnet2(NBSAP_s2,
+       size = node_size2,
+       label = V(NBSAP_s2)$node_label,
+       label.size = 2.7,
+       label.position = V(NBSAP_s2)$label_position,
+       color = V(NBSAP_s2)$node_color,
+       label.color = V(NBSAP_s2)$label_color,
+       edge.color = "gray") +
+  guides(size = "none") + 
+  theme_void() +
+  theme(plot.margin = margin(1, 1, 1, 1))
+
+```
+
+```{r}
+
+library(GGally)
+library(network)
+library(sna)
+library(ggplot2)
+library(intergraph)
+library(gridExtra)
+library(grid)
+library(ggplotify)
+
+
+
+correspondance_df <- data.frame(
+  Pays = names(pays_id),
+  Numéro = unname(pays_id),
+  stringsAsFactors = FALSE
+)
+
+correspondance_df$Pays[correspondance_df$Pays == "CentrafricanRepublic"] <- "Central African\nRepublic"
+correspondance_df$Pays[correspondance_df$Pays == "BurkinaFaso"] <- "Burkina Faso"
+correspondance_df$Pays[correspondance_df$Pays == "CaboVerde"] <- "Cabo Verde"
+correspondance_df$Pays[correspondance_df$Pays == "DRC"] <- "Democratic Republic\nof the Congo"
+correspondance_df$Pays[correspondance_df$Pays == "EquatorialGuinea"] <- "Equatorial Guinea"
+correspondance_df$Pays[correspondance_df$Pays == "GuineaBissau"] <- "Guinea Bissau"
+correspondance_df$Pays[correspondance_df$Pays == "IvoryCoast"] <- "Côte d'Ivoire"
+correspondance_df$Pays[correspondance_df$Pays == "SaoTome"] <- "Sao Tome"
+correspondance_df$Pays[correspondance_df$Pays == "SierraLeone"] <- "Sierra Leone"
+correspondance_df$Pays[correspondance_df$Pays == "SouthAfrica"] <- "South Africa"
+correspondance_df$Pays[correspondance_df$Pays == "SouthSudan"] <- "South Sudan"
+
+
+
+
+
+
+table_style <- function(df, font_size = 9) {
+  tableGrob(
+    df,
+    rows = NULL,
+    cols = NULL,
+    theme = ttheme_minimal(
+      base_size = font_size,
+      base_colour = "black",
+      core = list(
+        fg_params = list(cex = font_size / 10),
+        bg_params = list(fill = "white", col = NA)
+      )
+    )
+  )
+}
+
+
+n_colonnes_legende <- 6
+n_lignes <- ceiling(nrow(correspondance_df) / n_colonnes_legende)
+table_split <- split(correspondance_df, rep(1:n_colonnes_legende, each = n_lignes, length.out = nrow(correspondance_df)))
+tables_grobs <- lapply(table_split, function(df) table_style(df, font_size = 10.5))
+tableau_combine <- arrangeGrob(grobs = tables_grobs, ncol = n_colonnes_legende)
+
+
+graphes_verticaux <- arrangeGrob(NBSAP_network_graph, NBSAP_TSC_graph, ncol = 1)
+
+
+mise_en_page <- arrangeGrob(
+  graphes_verticaux,
+  tableau_combine,
+  ncol = 1,
+  heights = c(1,0.3)
+)
+
+
+ggsave("Figure Table 5.png",
+       as.ggplot(mise_en_page),
+       width = 11.27, height = 14.69, units = "in", dpi = 220)
+```
+
+#### Empirical metrics
+
+```{r}
+
+# NBSAP Network
+
+        clust1 <- transitivity(NBSAP_network,type="localaverageundirected")
+        clust2 <- transitivity(NBSAP_network,type="globalundirected")
+        edg <- edge_density(NBSAP_network)
+        deg <- centr_degree(NBSAP_network,normalized=T)$centralization
+        btw <- mean(igraph::betweenness(NBSAP_network,normalized = T))
+        clo <- mean(igraph::closeness(NBSAP_network,normalized=T))
+        eig <- mean(eigen_centrality(NBSAP_network,scale=T)$vector)
+
+        
+# NBSAP+TSC Network
+
+        clust1 <- transitivity(NBSAP_TSC,type="localaverageundirected")
+        clust2 <- transitivity(NBSAP_TSC,type="globalundirected")
+        edg <- edge_density(NBSAP_TSC)
+        deg <- centr_degree(NBSAP_TSC,normalized=T)$centralization
+        btw <- mean(igraph::betweenness(NBSAP_TSC,normalized = T))
+        clo <- mean(igraph::closeness(NBSAP_TSC,normalized=T))
+        eig <- mean(eigen_centrality(NBSAP_TSC,scale=T)$vector)
+
+```
+
+#### Bootstrapped network metrics
+
+```{r}
+ibrary(skynet)
+library(foreach)
+library(doParallel)
+
+set.seed(15)
+
+# Generic function to bootstrap
+
+bootnet_df_NBSAP <- function (g, n = 10000, left_ci = 0.05, right_ci = 0.95) 
+{
+
+    if (inherits(g, "skynet")) {
+        g <- g[[1]]
+    }
+    else {
+        g <- g
+    }
+    clust1 <- c()
+    clust2 <- c()
+    edg <- c()
+    deg <- c()
+    btw <- c()
+    clo <- c()
+    eig <- c()
+
+    for (i in 1:n) {
+        gBoot <- g %>% igraph::rewire(keeping_degseq(loops = FALSE, niter = ecount(g) * 
+            100))
+        
+          clust1[i] <- transitivity(gBoot,type="localaverageundirected")
+        clust2[i] <- transitivity(gBoot,type="globalundirected")
+        edg[i] <- edge_density(gBoot)
+        deg[i] <- centr_degree(gBoot,normalized=T)$centralization
+        btw[i] <- mean(igraph::betweenness(gBoot,normalized = T))
+        clo[i] <- mean(igraph::closeness(gBoot,normalized=T))
+        eig[i] <- mean(eigen_centrality(gBoot,scale=T)$vector)
+
+                     
+    }
+    
+        clust_df1 <-data.frame(values=clust1,parameter="Cluster local coefficient")
+        clust_df2 <-data.frame(values=clust2,parameter="Cluster global coefficient")
+        edg_df <- data.frame(values=edg,parameter="Edge density")
+        deg_df <- data.frame(values=deg,parameter="Degree centrality")
+        btw_df <- data.frame(values=btw,parameter="Betweenness centrality")
+        clo_df <- data.frame(values=clo,parameter="Closeness centrality")
+        eig_df <- data.frame(values=eig,parameter="Eigen centrality")
+
+    bootstats <- rbind(clust_df1,clust_df2,edg_df,deg_df,btw_df,clo_df,eig_df)
+
+    return(bootstats)
+}
+
+
+
+NBSAP_network_df <- bootnet_df_NBSAP(NBSAP_network)
+NBSAP_TSC_df <- bootnet_df_NBSAP(NBSAP_TSC)
+```
+
+#### Statistical test between bootstrapped networks
+
+```{r}
+
+resultat1 <- NBSAP_network_df %>%
+  group_by(parameter) %>%
+  summarise(
+    moyenne = mean(values, na.rm = TRUE),
+    ecart_type = sd(values, na.rm = TRUE)
+  )
+
+resultat2 <- NBSAP_TSC_df %>%
+  group_by(parameter) %>%
+  summarise(
+    moyenne = mean(values, na.rm = TRUE),
+    ecart_type = sd(values, na.rm = TRUE)
+  )
+
+x1 <- filter(NBSAP_network_df,NBSAP_network_df$parameter == "Eigen centrality")
+x2 <- filter(NBSAP_TSC_df,NBSAP_TSC_df$parameter == "Eigen centrality")
+
+t.test(x1$values, x2$values, paired = TRUE)
+
+library('effsize')
+
+# Cohen's D for impact assessment
+
+cohen.d(x1$values, x2$values)
+
+
+# Sign of the difference between the two networks
+
+mean(x1$values)-mean(x2$values)
+```
+
+# **c) Potential for a network of external universities to support knowledge exchange**
+
+## Table 5
+
+#### NBSAP+TSC (CASCADE restrained)
+
+```{r}
+
+NBSAP3 <- NBSAP2
+
+centres1 <- c("Sahara and Sahel Observatory (OSS)"="Sahara and Sahel Observatory (OSS)",
+              "South African National Biodiversity Institute (SANBI)"="South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)"="Ecological Monitoring Centre (CSE)","Central African Forest Commission (COMIFAC)"="Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)"="Regional Centre for Mapping of Resources for Development (RCMRD)","Algeria"="Sahara and Sahel Observatory (OSS)",
+     "Angola"="South African National Biodiversity Institute (SANBI)",
+     "Benin"="Ecological Monitoring Centre (CSE)",
+     "Botswana"="South African National Biodiversity Institute (SANBI)",
+     "BurkinaFaso"="Ecological Monitoring Centre (CSE)",
+     "Burundi"="Central African Forest Commission (COMIFAC)",
+     "CaboVerde"="Ecological Monitoring Centre (CSE)",
+     "Cameroon"="Central African Forest Commission (COMIFAC)",
+     "CBD Secretariat"="CBD Secretariat",
+      "CentrafricanRepublic"="Central African Forest Commission (COMIFAC)",
+     "Chad"="Central African Forest Commission (COMIFAC)",
+     "Comoros"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Congo"="Central African Forest Commission (COMIFAC)",
+     "IvoryCoast"="Ecological Monitoring Centre (CSE)",
+     "DRC"="Central African Forest Commission (COMIFAC)",
+     "Egypt"="Sahara and Sahel Observatory (OSS)",
+     "EquatorialGuinea"="Central African Forest Commission (COMIFAC)",
+     "Eritrea"="Sahara and Sahel Observatory (OSS)",
+     "Eswatini"="South African National Biodiversity Institute (SANBI)",
+     "Ethiopia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Gabon"="Central African Forest Commission (COMIFAC)",
+     "Gambia"="Ecological Monitoring Centre (CSE)",
+     "Ghana"="Ecological Monitoring Centre (CSE)",
+     "Guinea"="Ecological Monitoring Centre (CSE)",
+     "GuineaBissau"="Ecological Monitoring Centre (CSE)",
+     "Kenya"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Lesotho"="South African National Biodiversity Institute (SANBI)",
+     "Liberia"="Ecological Monitoring Centre (CSE)",
+     "Madagascar"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Malawi"="South African National Biodiversity Institute (SANBI)",
+     "Mali"="Ecological Monitoring Centre (CSE)",
+     "Mauritius"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Morocco"="Sahara and Sahel Observatory (OSS)",
+     "Mozambique"="South African National Biodiversity Institute (SANBI)",
+     "Namibia"="South African National Biodiversity Institute (SANBI)",
+     "Niger"="Ecological Monitoring Centre (CSE)",
+     "Nigeria"="Ecological Monitoring Centre (CSE)",
+     "Rwanda"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SaoTome"="Central African Forest Commission (COMIFAC)",
+     "Senegal"="Ecological Monitoring Centre (CSE)",
+     "Seychelles"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SierraLeone"="Ecological Monitoring Centre (CSE)",
+     "Somalia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SouthAfrica"="South African National Biodiversity Institute (SANBI)",
+     "SouthSudan"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Sudan"="Sahara and Sahel Observatory (OSS)",
+     "Tanzania"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Togo"="Ecological Monitoring Centre (CSE)",
+     "Tunisia"="Sahara and Sahel Observatory (OSS)",
+     "Zambia"="South African National Biodiversity Institute (SANBI)",
+     "Zimbabwe"="South African National Biodiversity Institute (SANBI)")
+
+centres <- as.data.frame(centres1)
+centres <- tibble::rownames_to_column(centres, "Node")
+n <- as.data.frame(names(NBSAP3))
+colnames(n) <- "Node"
+
+Centres1 <- left_join(n,centres, by = "Node")
+
+# Creating an edge between Government_"Country" and TSC
+    
+      #Sahara and Sahel Observatory (OSS)
+    sah <- filter(Centres1,Centres1$centres1 =="Sahara and Sahel Observatory (OSS)")
+    
+    clist <- sah$Node
+    my_patterns =paste0("Government_",clist)
+    NBSAP4bis <- list()
+    for (i in seq_along(NBSAP3)) {
+    a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    if(t=="na"){
+     NBSAP4bis[[i]] <- NBSAP3[[i]]
+    }
+    if(!t=="na"){
+      NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Sahara and Sahel Observatory (OSS)") %>% add_edges(c("Sahara and Sahel Observatory (OSS)",b))
+    }}
+    
+    #South African National Biodiversity Institute (SANBI)
+    
+    sa <- filter(Centres1,Centres1$centres1 =="South African National Biodiversity Institute (SANBI)")
+    clist <- sa$Node
+    my_patterns =paste0("Government_",clist)
+    for (i in seq_along(NBSAP3)) {
+    a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    
+    if(!t=="na"){
+      NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="South African National Biodiversity Institute (SANBI)") %>% add_edges(c("South African National Biodiversity Institute (SANBI)",b))
+    }}
+    
+    #Regional Centre for Mapping of Resources for Development (RCMRD)
+    
+    rc <- filter(Centres1,Centres1$centres1 =="Regional Centre for Mapping of Resources for Development (RCMRD)")
+    clist <- rc$Node
+    my_patterns =paste0("Government_",clist)
+    for (i in seq_along(NBSAP3)) {
+    a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    
+    if(!t=="na"){
+      NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Regional Centre for Mapping of Resources for Development (RCMRD)") %>% add_edges(c("Regional Centre for Mapping of Resources for Development (RCMRD)",b))
+    }}
+    
+    #Ecological Monitoring Centre (CSE)
+    
+    em <- filter(Centres1,Centres1$centres1 =="Ecological Monitoring Centre (CSE)")
+    clist <- em$Node
+    my_patterns =paste0("Government_",clist)
+    for (i in seq_along(NBSAP3)) {
+    a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    
+    if(!t=="na"){
+      NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Ecological Monitoring Centre (CSE)") %>% add_edges(c("Ecological Monitoring Centre (CSE)",b))
+    }}
+    
+    #Central African Forest Commission (COMIFAC)
+    
+    ca <- filter(Centres1,Centres1$centres1 =="Central African Forest Commission (COMIFAC)")
+    clist <- ca$Node
+    my_patterns =paste0("Government_",clist)
+    for (i in seq_along(NBSAP3)) {
+    a <- V(NBSAP3[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP3[[i]])))]
+    b <- as.character(a$name)
+    t <- ifelse(identical(b, character(0)),"na",b)
+    
+    if(!t=="na"){
+      NBSAP4bis[[i]] <- NBSAP3[[i]] %>% add_vertices(1,name="Central African Forest Commission (COMIFAC)") %>% add_edges(c("Central African Forest Commission (COMIFAC)",b))
+    }}
+
+
+# Creating an edge between TSC and CBD
+
+
+  #Sahara and Sahel Observatory (OSS)
+
+      centres <- as.data.frame(centres)
+      centres$Node <- as.factor(centres$Node)
+      cen <- levels(centres$Node)
+      cen <- cen[2:7]
+      cen <- c("OSS","COMIFAC","CSE","RCMRD","SANBI")
+      
+      names(NBSAP4bis) <- names(NBSAP3)
+      
+      NBSAP4 <- list()
+      for (i in seq_along(NBSAP4bis)) {
+        
+      a <- V(NBSAP4bis[[i]])[grepl(paste(cen, collapse='|'),names(V(NBSAP4bis[[i]])))]
+      
+      b <- as.character(a$name)
+      t <- ifelse(identical(b, character(0)),"na",b)
+      
+      if(!t=="na"){
+        
+        NBSAP4[[i]] <- NBSAP4bis[[i]] %>% add_vertices(1,name="CBD Secretariat") %>% add_edges(c("CBD Secretariat",b))
+        
+      }
+      
+      if(t=="na"){
+        
+        NBSAP4[[i]] <- NBSAP4bis[[i]] 
+      }
+      }
+      
+         NBSAP4_restreint <- list()
+        NBSAP4_restreint <- NBSAP4[c(4,8,10:13,19,22:24,26,27,29,35,37,42,45,48)]
+    
+        subgraph_list_df_restreint <- lapply(NBSAP4_restreint, igraph::as_data_frame)
+       subgraph_df_restreint <- do.call(rbind, subgraph_list_df_restreint)
+         NBSAP_Restreint <- graph_from_data_frame(subgraph_df_restreint , directed = FALSE)
+         
+         NBSAP_TSC_Restreint <- NBSAP_Restreint +edges("Central African Forest Commission (COMIFAC)","South African National Biodiversity Institute (SANBI)")   +edges("Central African Forest Commission (COMIFAC)","Ecological Monitoring Centre (CSE)")+edges("Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)")+edges("South African National Biodiversity Institute (SANBI)","Regional Centre for Mapping of Resources for Development (RCMRD)")+   edges("South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)")+ edges("Regional Centre for Mapping of Resources for Development (RCMRD)","Ecological Monitoring Centre (CSE)")
+         
+      i <- toVisNetworkData(NBSAP_TSC_Restreint,idToLabel = T)
+      
+      visNetwork(nodes = i$nodes,edges = i$edges)%>% 
+        visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)%>% 
+        visInteraction(navigationButtons = TRUE)%>%
+      visIgraphLayout(layout = "layout.fruchterman.reingold") 
+
+```
+
+#### NBSAP+TSC+CASCADE
+
+```{r}
+
+here()
+
+survey <- read_csv2("CASCADE_survey_Africa.csv")
+
+# Créer une colonne avec "CASCADE" de la longueur de survey
+
+
+survey$CASCADE <- rep("CASCADE",57)
+
+survey <- survey[-c(3,10),]
+
+survey$network <- paste0(survey$CASCADE,"--",survey$Node)
+survey$network <- str_replace_all(survey$network," ","")
+survey_network <- as.data.frame(survey$network)
+colnames(survey_network) <- "network"
+
+
+cascade2 <- list()
+for (row in 1:nrow(survey_network)) {
+  a <- survey_network[row,]
+e <- graph_from_string(a)
+
+ name2 <- paste(row)
+cascade2[[name2]] <-e
+
+}
+
+ subgraph_list_df <- lapply(cascade2, igraph::as_data_frame)
+
+subgraph_df <- do.call(rbind, subgraph_list_df)
+cascade <- graph_from_data_frame(subgraph_df , directed = FALSE)
+ 
+
+
+# Reprise du fichier NBSAP
+
+COUNTRY <- NBSAP_raw$Country
+FORMATED <- NBSAP_raw$Network
+
+NBSAP_raw2 <- as.data.frame(cbind(COUNTRY,FORMATED))
+
+NBSAP_raw2$FORMATED2 <- paste0(NBSAP_raw2$FORMATED,"-",NBSAP_raw2$FORMATED)
+NBSAP_raw2$FORMATED <- NBSAP_raw2$FORMATED2
+
+
+
+#survey CASCADE
+COUNTRY <- survey$COUNTRY
+FORMATED <- survey$network
+
+
+survey_2 <- as.data.frame(cbind(COUNTRY,FORMATED))
+
+
+
+
+
+survey_2$COUNTRY <- as.factor(survey_2$COUNTRY)
+
+surveybis <- data_frame(COUNTRY=levels(survey_2$COUNTRY),FORMATED="CASCADE--CBD Secretariat")
+ 
+survey_2 <- rbind(survey_2,surveybis)
+
+survey_2$COUNTRY <- str_replace_all(survey_2$COUNTRY,'Central African Republic','CentrafricanRepublic')
+
+survey_2$FORMATED <- str_replace_all(survey_2$FORMATED,'--',':')
+
+survey_2$FORMATED2 <- survey_2$FORMATED
+
+survey_2$FORMATED3 <- paste0(survey_2$FORMATED,"-",survey_2$FORMATED2)
+
+survey_3 <- survey_2[,-c(2,3)]
+survey_2 <- survey_3
+colnames(survey_2) <- c("COUNTRY","FORMATED")
+
+
+# Nous avons crée un dataframe à partir du NBSAP et de l'online survey. Il s'agit ici de fusionner les deux
+
+NBSAP_raw2 <- NBSAP_raw2[,-3]
+
+df_network <- rbind(survey_2,NBSAP_raw2)
+  
+
+#On homogeneise les noms de pays
+
+df_network$COUNTRY <- as.character(df_network$COUNTRY)
+
+ df_network$COUNTRY[df_network$COUNTRY=="Congo DRC"] <-"DRC"
+
+ 
+
+ df_network$COUNTRY[df_network$COUNTRY=="Guinea_Bissau"] <-"GuineaBissau"
+ df_network$COUNTRY[df_network$COUNTRY=="Sao_Tome_and_Principe"] <-"SaoTome"
+  df_network$COUNTRY[df_network$COUNTRY=="Sao Tome and Principe"] <-"SaoTome"
+    df_network$COUNTRY[df_network$COUNTRY=="CentralAfricanRepublic"] <-"CentrafricanRepublic"
+
+
+
+ df_network$COUNTRY[df_network$COUNTRY=="Cote dIvoire"] <-"IvoryCoast"
+  df_network$COUNTRY[df_network$COUNTRY=="Cote"] <-"IvoryCoast"
+
+
+
+df_network$COUNTRY <- str_replace_all(df_network$COUNTRY,'-',"")
+df_network$COUNTRY <- str_replace_all(df_network$COUNTRY,' ',"")
+df_network$COUNTRY <- str_replace_all(df_network$COUNTRY,'_',"")
+
+df_network$COUNTRY <- as.factor(df_network$COUNTRY)
+
+
+library(stringr)
+df_network$FORMATED <- str_replace_all(df_network$FORMATED,':',paste0("_",df_network$COUNTRY,":"))
+df_network$FORMATED <- str_replace_all(df_network$FORMATED,'-',paste0("_",df_network$COUNTRY,"-"))
+
+df_network$FORMATED <- paste0(df_network$FORMATED,"_",df_network$COUNTRY)
+
+df_network <- filter(df_network, !df_network$COUNTRY == "Uganda")
+
+df_network$FORMATED <- str_replace_all(df_network$FORMATED," ","")
+
+# Dataframes for each country
+
+
+countries <- as.character(levels(as.factor(df_network$COUNTRY)))
+countcountries <- countries[-c(50)]
+
+df <- list()
+for(i in seq_along(countcountries)){
+  b <- filter(df_network, df_network$COUNTRY == countcountries[[i]])
+  name <- paste(countcountries[[i]])
+  df[[name]] <- b
+}
+
+# List of networks
+
+# For each country dataframe
+
+NBSAP_CASCADE <- list()
+for(i in 1:length(df)){
+
+df2 <- df[[i]]
+
+Network_country <- list()
+for (row in 1:nrow(df2)) {
+  
+  country_name <- paste(df2$COUNTRY[1]) 
+  net <- df2[row,]
+  e <- graph_from_string(net$FORMATED)
+  name <- paste(country_name,"net",row,sep="_")
+  Network_country[[name]] <- e
+ 
+}
+  
+name2 <- paste(df[[i]]$COUNTRY[1])
+NBSAP_CASCADE[[name2]] <- Network_country
+
+}
+
+ 
+
+
+######
+
+
+NBSAP_CASCADE2 <- list()
+Country_net <- list()
+
+#Selection du pays
+
+for (i in 1:length(NBSAP_CASCADE)) {
+  
+    Country_net <- NBSAP_CASCADE[[i]]  
+    
+  # Selection du network
+    
+     subgraph_list_df <- lapply(Country_net, igraph::as_data_frame)
+     subgraph_df <- do.call(rbind, subgraph_list_df)
+     a <- graph_from_data_frame(subgraph_df , directed = FALSE)
+      
+     name <- names(NBSAP_CASCADE[i])
+     
+     NBSAP_CASCADE2[[name]] <- a
+     
+}
+
+
+
+
+for (i in seq_along(NBSAP_CASCADE2)) {
+  
+  V(NBSAP_CASCADE2[[i]])$name <- str_replace(V(NBSAP_CASCADE2[[i]])$name,"^CASCADE.*","CASCADE")
+}
+  
+
+for (i in seq_along(NBSAP_CASCADE2)) {
+  
+  V(NBSAP_CASCADE2[[i]])$name <- str_replace_all(V(NBSAP_CASCADE2[[i]])$name,"^CBD.*","CBD Secretariat")
+}
+
+
+centres1 <- c("Sahara and Sahel Observatory (OSS)"="Sahara and Sahel Observatory (OSS)",
+              "South African National Biodiversity Institute (SANBI)"="South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)"="Ecological Monitoring Centre (CSE)","Central African Forest Commission (COMIFAC)"="Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)"="Regional Centre for Mapping of Resources for Development (RCMRD)","Algeria"="Sahara and Sahel Observatory (OSS)",
+     "Angola"="South African National Biodiversity Institute (SANBI)",
+     "Benin"="Ecological Monitoring Centre (CSE)",
+     "Botswana"="South African National Biodiversity Institute (SANBI)",
+     "BurkinaFaso"="Ecological Monitoring Centre (CSE)",
+     "Burundi"="Central African Forest Commission (COMIFAC)",
+     "CaboVerde"="Ecological Monitoring Centre (CSE)",
+     "Cameroon"="Central African Forest Commission (COMIFAC)",
+     "CentrafricanRepublic"="Central African Forest Commission (COMIFAC)",
+     "CBD Secretariat"="CBD Secretariat",
+     "Chad"="Central African Forest Commission (COMIFAC)",
+     "Comoros"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Congo"="Central African Forest Commission (COMIFAC)",
+     "IvoryCoast"="Ecological Monitoring Centre (CSE)",
+     "DRC"="Central African Forest Commission (COMIFAC)",
+     "Egypt"="Sahara and Sahel Observatory (OSS)",
+     "EquatorialGuinea"="Central African Forest Commission (COMIFAC)",
+     "Eritrea"="Sahara and Sahel Observatory (OSS)",
+          "Mauritania"="Sahara and Sahel Observatory (OSS)",
+     "Eswatini"="South African National Biodiversity Institute (SANBI)",
+     "Ethiopia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Gabon"="Central African Forest Commission (COMIFAC)",
+     "Gambia"="Ecological Monitoring Centre (CSE)",
+     "Ghana"="Ecological Monitoring Centre (CSE)",
+     "Guinea"="Ecological Monitoring Centre (CSE)",
+     "GuineaBissau"="Ecological Monitoring Centre (CSE)",
+     "Kenya"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Lesotho"="South African National Biodiversity Institute (SANBI)",
+     "Liberia"="Ecological Monitoring Centre (CSE)",
+     "Madagascar"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Malawi"="South African National Biodiversity Institute (SANBI)",
+     "Mali"="Ecological Monitoring Centre (CSE)",
+     "Mauritius"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Morocco"="Sahara and Sahel Observatory (OSS)",
+     "Mozambique"="South African National Biodiversity Institute (SANBI)",
+     "Namibia"="South African National Biodiversity Institute (SANBI)",
+     "Niger"="Ecological Monitoring Centre (CSE)",
+     "Nigeria"="Ecological Monitoring Centre (CSE)",
+     "Rwanda"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SaoTome"="Central African Forest Commission (COMIFAC)",
+     "Senegal"="Ecological Monitoring Centre (CSE)",
+     "Seychelles"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SierraLeone"="Ecological Monitoring Centre (CSE)",
+     "Somalia"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "SouthAfrica"="South African National Biodiversity Institute (SANBI)",
+     "SouthSudan"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Sudan"="Sahara and Sahel Observatory (OSS)",
+     "Tanzania"="Regional Centre for Mapping of Resources for Development (RCMRD)",
+     "Togo"="Ecological Monitoring Centre (CSE)",
+     "Tunisia"="Sahara and Sahel Observatory (OSS)",
+     "Zambia"="South African National Biodiversity Institute (SANBI)",
+     "Zimbabwe"="South African National Biodiversity Institute (SANBI)")
+
+centres <- as.data.frame(centres1)
+centres <- tibble::rownames_to_column(centres, "Node")
+
+n <- as.data.frame(names(NBSAP_CASCADE2))
+colnames(n) <- "Node"
+
+Centres1 <- left_join(n,centres, by = "Node")
+
+#Création d'un noeud entre Government_"Country" et Support centre
+
+  #Sahara and Sahel Observatory (OSS)
+sah <- filter(Centres1,Centres1$centres1 =="Sahara and Sahel Observatory (OSS)")
+
+clist <- sah$Node
+my_patterns =paste0("Government_",clist)
+NBSAP4bis <- list()
+for (i in seq_along(NBSAP_CASCADE2)) {
+a <- V(NBSAP_CASCADE2[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP_CASCADE2[[i]])))]
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+if(t=="na"){
+ NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]]
+}
+if(!t=="na"){
+  NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]] %>% add_vertices(1,name="Sahara and Sahel Observatory (OSS)") %>% add_edges(c("Sahara and Sahel Observatory (OSS)",t))
+}}
+
+#South African National Biodiversity Institute (SANBI)
+
+sa <- filter(Centres1,Centres1$centres1 =="South African National Biodiversity Institute (SANBI)")
+clist <- sa$Node
+my_patterns =paste0("Government_",clist)
+for (i in seq_along(NBSAP_CASCADE2)) {
+a <- V(NBSAP_CASCADE2[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP_CASCADE2[[i]])))]
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]] %>% add_vertices(1,name="South African National Biodiversity Institute (SANBI)") %>% add_edges(c("South African National Biodiversity Institute (SANBI)",t))
+}}
+
+#Regional Centre for Mapping of Resources for Development (RCMRD)
+
+rc <- filter(Centres1,Centres1$centres1 =="Regional Centre for Mapping of Resources for Development (RCMRD)")
+clist <- rc$Node
+my_patterns =paste0("Government_",clist)
+for (i in seq_along(NBSAP_CASCADE2)) {
+a <- V(NBSAP_CASCADE2[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP_CASCADE2[[i]])))]
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]] %>% add_vertices(1,name="Regional Centre for Mapping of Resources for Development (RCMRD)") %>% add_edges(c("Regional Centre for Mapping of Resources for Development (RCMRD)",t))
+}}
+
+#Ecological Monitoring Centre (CSE)
+
+em <- filter(Centres1,Centres1$centres1 =="Ecological Monitoring Centre (CSE)")
+clist <- em$Node
+my_patterns =paste0("Government_",clist)
+for (i in seq_along(NBSAP_CASCADE2)) {
+a <- V(NBSAP_CASCADE2[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP_CASCADE2[[i]])))]
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]] %>% add_vertices(1,name="Ecological Monitoring Centre (CSE)") %>% add_edges(c("Ecological Monitoring Centre (CSE)",t))
+}}
+
+#Central African Forest Commission (COMIFAC)
+
+ca <- filter(Centres1,Centres1$centres1 =="Central African Forest Commission (COMIFAC)")
+clist <- ca$Node
+my_patterns =paste0("Government_",clist)
+for (i in seq_along(NBSAP_CASCADE2)) {
+a <- V(NBSAP_CASCADE2[[i]])[grepl(paste(my_patterns, collapse='|'), names(V(NBSAP_CASCADE2[[i]])))]
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  NBSAP4bis[[i]] <- NBSAP_CASCADE2[[i]] %>% add_vertices(1,name="Central African Forest Commission (COMIFAC)") %>% add_edges(c("Central African Forest Commission (COMIFAC)",t))
+}}
+
+
+#Création d'un noeud entre Support Centre et CBD
+
+
+centres <- as.data.frame(centres)
+centres$Node <- as.factor(centres$Node)
+cen <- levels(centres$Node)
+cen <- c("OSS","COMIFAC","CSE","RCMRD","SANBI")
+
+
+NBSAP4 <- list()
+
+for (i in seq_along(NBSAP4bis)) {
+  
+a <- V(NBSAP4bis[[i]])[grepl(paste(cen, collapse='|'),names(V(NBSAP4bis[[i]])))]
+
+b <- as.character(a$name)
+t <- ifelse(identical(b, character(0)),"na",b)
+
+if(!t=="na"){
+  
+  NBSAP4[[i]] <- NBSAP4bis[[i]] %>% add_vertices(1,name="CBD Secretariat") %>% add_edges(c("CBD Secretariat",b))
+  
+}
+
+if(t=="na"){
+  
+  NBSAP4[[i]] <- NBSAP4bis[[i]] 
+}
+}
+
+  for (i in seq_along(NBSAP4)) {
+  print(which(duplicated(V(NBSAP4[[i]])$name)))
+}
+names(NBSAP4) <- names(NBSAP3)
+
+NBSAP4 <- lapply(NBSAP4, function(g) igraph::delete_vertices(g, igraph::degree(g) == 0))
+
+   
+  NBSAP4_CASCADE_restreint <- list()
+  
+  NBSAP4_CASCADE_restreint <- NBSAP4[c(4,8,9,11:13,24,19,22,23,25,27,28,37,39,44,47,50)]
+
+   
+
+     subgraph_list_df_CASCADE_restreint <- lapply(NBSAP4_CASCADE_restreint, igraph::as_data_frame)
+     subgraph_df_CASCADE_restreint <- do.call(rbind, subgraph_list_df_CASCADE_restreint)
+     NBSAP_CASCADE3_CASCADE_restreint <- graph_from_data_frame(subgraph_df_CASCADE_restreint , directed = FALSE)
+      
+ 
+   NBSAP_CASCADE_Restreint <- NBSAP_CASCADE3_CASCADE_restreint
+   
+   
+   
+ NBSAP_CASCADE_Restreint <- NBSAP_CASCADE_Restreint  +edges("Central African Forest Commission (COMIFAC)","South African National Biodiversity Institute (SANBI)")   +edges("Central African Forest Commission (COMIFAC)","Ecological Monitoring Centre (CSE)")+edges("Central African Forest Commission (COMIFAC)","Regional Centre for Mapping of Resources for Development (RCMRD)")+edges("South African National Biodiversity Institute (SANBI)","Regional Centre for Mapping of Resources for Development (RCMRD)")+   edges("South African National Biodiversity Institute (SANBI)","Ecological Monitoring Centre (CSE)")+ edges("Regional Centre for Mapping of Resources for Development (RCMRD)","Ecological Monitoring Centre (CSE)")
+   
+   
+i <- toVisNetworkData(NBSAP_CASCADE_Restreint,idToLabel = T)
+
+visNetwork(nodes = i$nodes,edges = i$edges)%>% 
+  visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)%>% 
+  visInteraction(navigationButtons = TRUE)%>%
+visIgraphLayout(layout = "layout.fruchterman.reingold") 
+   
+
+```
+
+```{r}
+
+
+
+
+#NBSAP-TSC Restreint
+# 1. Nouveau réseau enrichi
+NBSAP_network2 <- NBSAP_TSC_Restreint
+vertex_names2 <- V(NBSAP_network2)$name
+
+# 2. Liste des TSC
+TSC_list <- c(
+  "Sahara and Sahel Observatory (OSS)",
+  "Central African Forest Commission (COMIFAC)",
+  "Ecological Monitoring Centre (CSE)",
+  "South African National Biodiversity Institute (SANBI)",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)"
+)
+
+# Labels personnalisés pour les TSCs (modifiable)
+custom_TSC_labels <- c(
+  "Sahara and Sahel Observatory (OSS)" = "OSS",
+  "Central African Forest Commission (COMIFAC)" = "COMIFAC",
+  "Ecological Monitoring Centre (CSE)" = "CSE",
+  "South African National Biodiversity Institute (SANBI)" = "SANBI",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)" = "RCMRD"
+)
+
+# 3. Extraire le pays depuis le nom si possible (optionnel pour les TSC)
+extract_country <- function(x) {
+  parts <- strsplit(x, "_")[[1]]
+  tail(parts, 1)
+}
+pays2 <- sapply(vertex_names2, extract_country)
+V(NBSAP_network2)$pays <- pays2
+
+# 4. Identifier les pays à numéroter (hors CBD et TSC)
+pays_for_numbering2 <- sort(unique(pays2[!(vertex_names2 %in% c("CBD Secretariat", TSC_list))]))
+V(NBSAP_network2)$pays_num <- ifelse(
+  vertex_names2 %in% c("CBD Secretariat", TSC_list),
+  NA,
+  pays_id[pays2]
+)
+
+# 5. Étiquettes des nœuds
+V(NBSAP_network2)$node_label <- ifelse(
+  vertex_names2 %in% names(custom_TSC_labels),
+  custom_TSC_labels[vertex_names2],
+  ifelse(vertex_names2 == "CBD Secretariat", "CBD Secretariat", as.character(V(NBSAP_network2)$pays_num))
+)
+
+
+# 6. Couleur des nœuds : tout en gris
+V(NBSAP_network2)$node_color <- "gray"
+
+# 7. Couleur du texte : noir
+V(NBSAP_network2)$label_color <- "black"
+
+# 8. Taille des nœuds : 4.5 pour CBD + TSC, 3 pour les autres
+node_size2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list),  0.8, 0.2)
+
+# 9. Position du label : "below" pour noms affichés, sinon "center"
+label_position2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list), "below", "center")
+
+# 10. Graphe simplifié
+NBSAP_s2 <- igraph::simplify(NBSAP_network2)
+V(NBSAP_s2)$node_label <- V(NBSAP_network2)$node_label
+V(NBSAP_s2)$node_color <- V(NBSAP_network2)$node_color
+V(NBSAP_s2)$label_color <- V(NBSAP_network2)$label_color
+V(NBSAP_s2)$label_position <- label_position2
+
+# 11. Visualisation
+NBSAP_TSC_restreint_graph <- ggnet2(NBSAP_s2,
+       size = node_size2,
+       label = V(NBSAP_s2)$node_label,
+       label.size = 2.7,
+       label.position = V(NBSAP_s2)$label_position,
+       color = V(NBSAP_s2)$node_color,
+       label.color = V(NBSAP_s2)$label_color,
+       edge.color = "gray") +
+  guides(size = "none") + 
+  theme_void() +
+  theme(plot.margin = margin(1, 1, 1, 1))
+
+
+
+
+
+#NBSAP-TSC-CASCADE Restreint
+# 1. Nouveau réseau enrichi
+NBSAP_network2 <- NBSAP_CASCADE_Restreint
+vertex_names2 <- V(NBSAP_network2)$name
+
+# 2. Liste des TSC
+TSC_list <- c(
+  "Sahara and Sahel Observatory (OSS)",
+  "Central African Forest Commission (COMIFAC)",
+  "Ecological Monitoring Centre (CSE)",
+  "South African National Biodiversity Institute (SANBI)",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)",
+  "CASCADE"
+)
+
+# Labels personnalisés pour les TSCs (modifiable)
+custom_TSC_labels <- c(
+  "Sahara and Sahel Observatory (OSS)" = "OSS",
+  "Central African Forest Commission (COMIFAC)" = "COMIFAC",
+  "Ecological Monitoring Centre (CSE)" = "CSE",
+  "South African National Biodiversity Institute (SANBI)" = "SANBI",
+  "Regional Centre for Mapping of Resources for Development (RCMRD)" = "RCMRD","CASCADE"="CASCADE"
+)
+
+# 3. Extraire le pays depuis le nom si possible (optionnel pour les TSC)
+extract_country <- function(x) {
+  parts <- strsplit(x, "_")[[1]]
+  tail(parts, 1)
+}
+pays2 <- sapply(vertex_names2, extract_country)
+V(NBSAP_network2)$pays <- pays2
+
+# 4. Identifier les pays à numéroter (hors CBD et TSC)
+pays_for_numbering2 <- sort(unique(pays2[!(vertex_names2 %in% c("CBD Secretariat", TSC_list))]))
+V(NBSAP_network2)$pays_num <- ifelse(
+  vertex_names2 %in% c("CBD Secretariat", TSC_list),
+  NA,
+  pays_id[pays2]
+)
+
+# 5. Étiquettes des nœuds
+V(NBSAP_network2)$node_label <- ifelse(
+  vertex_names2 %in% names(custom_TSC_labels),
+  custom_TSC_labels[vertex_names2],
+  ifelse(vertex_names2 == "CBD Secretariat", "CBD Secretariat", as.character(V(NBSAP_network2)$pays_num))
+)
+
+
+# 6. Couleur des nœuds : tout en gris
+V(NBSAP_network2)$node_color <- "gray"
+
+# 7. Couleur du texte : noir
+V(NBSAP_network2)$label_color <- "black"
+
+# 8. Taille des nœuds : 4.5 pour CBD + TSC, 3 pour les autres
+node_size2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list),  0.8, 0.2)
+
+# 9. Position du label : "below" pour noms affichés, sinon "center"
+label_position2 <- ifelse(vertex_names2 %in% c("CBD Secretariat", TSC_list), "below", "center")
+
+# 10. Graphe simplifié
+NBSAP_s2 <- igraph::simplify(NBSAP_network2)
+V(NBSAP_s2)$node_label <- V(NBSAP_network2)$node_label
+V(NBSAP_s2)$node_color <- V(NBSAP_network2)$node_color
+V(NBSAP_s2)$label_color <- V(NBSAP_network2)$label_color
+V(NBSAP_s2)$label_position <- label_position2
+
+# 11. Visualisation
+NBSAP_CASCADE_graph <- ggnet2(NBSAP_s2,
+       size = node_size2,
+       label = V(NBSAP_s2)$node_label,
+       label.size = 2.7,
+       label.position = V(NBSAP_s2)$label_position,
+       color = V(NBSAP_s2)$node_color,
+       label.color = V(NBSAP_s2)$label_color,
+       edge.color = "gray") +
+  guides(size = "none") + 
+  theme_void() +
+  theme(plot.margin = margin(1, 1, 1, 1))
+
+```
+
+```{r}
+
+
+# 3. Tableau de correspondance pays-numéro
+
+CASCADE_countries <- unique(NBSAP_CASCADE_graph$data$label)
+
+extract_unique_numbers <- function(text) {
+  nums <- unlist(regmatches(text, gregexpr("\\d+", text)))  # extrait tous les chiffres
+  unique(as.numeric(nums))                                  # conversion + unicité
+}
+
+nombres_uniques <- extract_unique_numbers(CASCADE_countries)
+
+correspondance_filtered <- correspondance_df[correspondance_df$Numéro %in% nombres_uniques, ]
+
+
+# 4. Fonction de style du tableau
+table_style <- function(df, font_size = 9) {
+  tableGrob(
+    df,
+    rows = NULL,
+    cols = NULL,
+    theme = ttheme_minimal(
+      base_size = font_size,
+      base_colour = "black",
+      core = list(
+        fg_params = list(cex = font_size / 10),
+        bg_params = list(fill = "white", col = NA)
+      )
+    )
+  )
+}
+
+# 5. Fractionner en plusieurs colonnes pour tableau compact
+n_colonnes_legende <- 6
+n_lignes <- ceiling(nrow(correspondance_filtered) / n_colonnes_legende)
+table_split <- split(correspondance_filtered, rep(1:n_colonnes_legende, each = n_lignes, length.out = nrow(correspondance_filtered)))
+tables_grobs <- lapply(table_split, function(df) table_style(df, font_size = 10.5))
+tableau_combine <- arrangeGrob(grobs = tables_grobs, ncol = n_colonnes_legende)
+
+# 6. Graphes empilés (verticalement)
+graphes_verticaux <- arrangeGrob(NBSAP_TSC_restreint_graph, NBSAP_CASCADE_graph, ncol = 1)
+
+# 7. Mise en page finale : graphes puis tableau
+mise_en_page <- arrangeGrob(
+  graphes_verticaux,
+  tableau_combine,
+  ncol = 1,
+  heights = c(1,0.1)
+)
+
+# 8. Export PNG en format A4 vertical
+ggsave("Figure_Table6.png",
+       as.ggplot(mise_en_page),
+       width = 11.27, height = 14.69, units = "in", dpi = 220)
+
+```
+
+#### Empirical metrics
+
+```{r}
+
+# NBSAP+TSC Network
+        clust1 <- transitivity(NBSAP_TSC_Restreint,type="localaverageundirected")
+        clust2 <- transitivity(NBSAP_TSC_Restreint,type="globalundirected")
+        edg <- edge_density(NBSAP_TSC_Restreint)
+        deg <- centr_degree(NBSAP_TSC_Restreint,normalized=T)$centralization
+        btw <- mean(igraph::betweenness(NBSAP_TSC_Restreint,normalized = T))
+        clo <- mean(igraph::closeness(NBSAP_TSC_Restreint,normalized=T))
+        eig <- mean(eigen_centrality(NBSAP_TSC_Restreint,scale=T)$vector)
+
+        
+# NBSAP+TSC+CASCADE Network
+
+        clust1 <- transitivity(NBSAP_CASCADE_Restreint,type="localaverageundirected")
+        clust2 <- transitivity(NBSAP_CASCADE_Restreint,type="globalundirected")
+        edg <- edge_density(NBSAP_CASCADE_Restreint)
+        deg <- centr_degree(NBSAP_CASCADE_Restreint,normalized=T)$centralization
+        btw <- mean(igraph::betweenness(NBSAP_CASCADE_Restreint ,normalized = T))
+        clo <- mean(igraph::closeness(NBSAP_CASCADE_Restreint,normalized=T))
+        eig <- mean(eigen_centrality(NBSAP_CASCADE_Restreint,scale=T)$vector)
+
+```
+
+#### Bootstrapped network metrics
+
+```{r}
+library(skynet)
+library(foreach)
+library(doParallel)
+
+set.seed(15)
+
+
+bootnet_df_NBSAP <- function (g, n = 10000, left_ci = 0.05, right_ci = 0.95) 
+{
+
+    if (inherits(g, "skynet")) {
+        g <- g[[1]]
+    }
+    else {
+        g <- g
+    }
+    clust1 <- c()
+    clust2 <- c()
+    edg <- c()
+    deg <- c()
+    btw <- c()
+    clo <- c()
+    eig <- c()
+
+    for (i in 1:n) {
+        gBoot <- g %>% igraph::rewire(keeping_degseq(loops = FALSE, niter = ecount(g) * 
+            10))
+        
+          clust1[i] <- transitivity(gBoot,type="localaverageundirected")
+        clust2[i] <- transitivity(gBoot,type="globalundirected")
+        edg[i] <- edge_density(gBoot)
+        deg[i] <- centr_degree(gBoot,normalized=T)$centralization
+        btw[i] <- mean(igraph::betweenness(gBoot,normalized = T))
+        clo[i] <- mean(igraph::closeness(gBoot,normalized=T))
+        eig[i] <- mean(eigen_centrality(gBoot,scale=T)$vector)
+
+                     
+    }
+    
+        clust_df1 <-data.frame(values=clust1,parameter="Cluster local coefficient")
+        clust_df2 <-data.frame(values=clust2,parameter="Cluster global coefficient")
+        edg_df <- data.frame(values=edg,parameter="Edge density")
+        deg_df <- data.frame(values=deg,parameter="Degree centrality")
+        btw_df <- data.frame(values=btw,parameter="Betweenness centrality")
+        clo_df <- data.frame(values=clo,parameter="Closeness centrality")
+        eig_df <- data.frame(values=eig,parameter="Eigen centrality")
+
+    bootstats <- rbind(clust_df1,clust_df2,edg_df,deg_df,btw_df,clo_df,eig_df)
+
+    return(bootstats)
+}
+
+
+
+NBSAP_TSC_Restreint_df <- bootnet_df_NBSAP(NBSAP_TSC_Restreint)
+NBSAP_CASCADE_restrained_df <- bootnet_df_NBSAP(NBSAP_CASCADE_Restreint)
+```
+
+#### Statistical test between bootstrapped networks
+
+```{r}
+
+resultat1 <- NBSAP_TSC_Restreint_df %>%
+  group_by(parameter) %>%
+  summarise(
+    moyenne = mean(values, na.rm = TRUE),
+    ecart_type = sd(values, na.rm = TRUE)
+  )
+
+resultat2 <- NBSAP_CASCADE_restrained_df %>%
+  group_by(parameter) %>%
+  summarise(
+    moyenne = mean(values, na.rm = TRUE),
+    ecart_type = sd(values, na.rm = TRUE)
+  )
+
+x1 <- filter(NBSAP_TSC_Restreint_df,NBSAP_TSC_Restreint_df$parameter == "Eigen centrality")
+x2 <- filter(NBSAP_CASCADE_restrained_df,NBSAP_CASCADE_restrained_df$parameter == "Eigen centrality")
+
+t.test(x1$values, x2$values, paired = TRUE)
+
+library('effsize')
+
+# Cohen's D for impact assessment
+
+cohen.d(x1$values, x2$values)
+
+xs
+# Sign of the difference between the two networks
+
+mean(x1$values)-mean(x2$values)
+```
